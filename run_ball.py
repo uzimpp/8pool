@@ -15,8 +15,10 @@ class BouncingSimulator:
         print(self.canvas_width, self.canvas_height)
         self.ball_radius = 0.05 * self.canvas_width
         for i in range(self.num_balls):
-            x = random.randint(-1*self.canvas_width + self.ball_radius, self.canvas_width - self.ball_radius)
-            y = random.randint(-1*self.canvas_height + self.ball_radius, self.canvas_height - self.ball_radius)
+            x = -self.canvas_width + (i+1)*(2*self.canvas_width/(self.num_balls+1))
+            y = 0.0
+            # x = random.uniform(-1*self.canvas_width + self.ball_radius, self.canvas_width - self.ball_radius)
+            # y = random.uniform(-1*self.canvas_height + self.ball_radius, self.canvas_height - self.ball_radius)
             vx = 2*random.uniform(-1.0, 1.0)
             vy = 2*random.uniform(-1.0, 1.0)
             ball_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))

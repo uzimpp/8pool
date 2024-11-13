@@ -33,3 +33,24 @@ class Ball:
 
         if abs(self.y) > (self.canvas_height - self.size):
             self.vy = -self.vy
+    
+    def bounceOff(self, that):
+        dx  = that.x - self.x
+        dy  = that.y - self.y
+        dvx = that.vx - self.vx
+        dvy = that.vy - self.vy
+        dvdr = dx*dvx + dy*dvy; # dv dot dr
+        dist = self.size + that.size   # distance between particle centers at collison
+
+        # magnitude of normal force
+        magnitude = 2 * self.mass * that.mass * dvdr / ((self.mass + that.mass) * dist)
+
+        # normal force, and in x and y directions
+        fx = magnitude * dx / dist
+        fy = magnitude * dy / dist
+
+        # update velocities according to normal force
+        self.vx += fx / self.mass
+        self.vy += fy / self.mass
+        that.vx -= fx / that.mass
+        that.vy -= fy / that.mass
