@@ -8,6 +8,7 @@ class Ball:
         self.y = y
         self.vx = vx
         self.vy = vy
+        self.mass = 100
         self.color = color
         self.canvas_width = turtle.screensize()[0]
         self.canvas_height = turtle.screensize()[1]
@@ -27,14 +28,29 @@ class Ball:
         self.x += self.vx*dt
         self.y += self.vy*dt
 
-    def update_velocity(self):
+    def check_v_wall_collision(self):
         if abs(self.x) > (self.canvas_width - self.size):
-            self.vx = -self.vx
+            return True
 
+    def check_h_wall_collision(self):
         if abs(self.y) > (self.canvas_height - self.size):
-            self.vy = -self.vy
+            return True
+
+    def hitting_v_wall(self):
+        self.vx = -self.vx
+
+    def hitting_h_wall(self):
+        self.vy = -self.vy
+
+    def distance(self, that):
+        x1 = self.x
+        y1 = self.y
+        x2 = that.x
+        y2 = that.y
+        d = math.sqrt((y2-y1)**2 + (x2-x1)**2)
+        return d
     
-    def bounceOff(self, that):
+    def bounce_off(self, that):
         dx  = that.x - self.x
         dy  = that.y - self.y
         dvx = that.vx - self.vx
