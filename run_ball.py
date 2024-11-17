@@ -31,7 +31,7 @@ class BouncingSimulator:
 
         tom = turtle.Turtle()
         self.my_paddle = paddle.Paddle(200, 50, (255, 0, 0), tom)
-        self.my_paddle.set_location([0, -self.canvas_height + 50/2])
+        self.my_paddle.set_location([0, -50])
 
         self.screen = turtle.Screen()
 
