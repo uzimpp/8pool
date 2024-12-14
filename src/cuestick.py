@@ -1,8 +1,9 @@
-class Paddle:
-    def __init__(self, width, height, color, my_turtle):
+class CueStick:
+    def __init__(self, width, height, color, my_turtle, power, pos: list):
         self.width = width
         self.height = height
-        self.location = [0, 0]
+        self.power = power
+        self.location = pos
         self.color = color
         self.my_turtle = my_turtle
         self.my_turtle.penup()
