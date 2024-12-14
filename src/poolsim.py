@@ -1,10 +1,10 @@
 import turtle
 import random
 import math
-from cueball import Ball, StripeBall
+from ball import Ball, StripeBall
+from cuestick import CueStick
 
-
-class SnookerSimulator:
+class PoolSimulator:
     def __init__(self):
         """Basics"""
         self.ball_list = []
@@ -185,5 +185,5 @@ turtle.speed(0)
 turtle.tracer(0)
 turtle.hideturtle()
 turtle.colormode(255)
-sim = SnookerSimulator()
+sim = PoolSimulator()
 sim.run()
