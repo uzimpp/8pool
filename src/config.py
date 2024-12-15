@@ -16,7 +16,8 @@ TABLE_WIDTH = 450  # in pixels
 
 # Table Colors
 POOL_TABLE_CLOTH_COLOR = (121, 163, 103)     # Muted moss green for a cozy feel
-POOL_TABLE_COLOR = (65, 50, 40)              # Warm dark brown for table boundary
+# Warm dark brown for table boundary
+POOL_TABLE_COLOR = (65, 50, 40)
 POOL_TABLE_POCKET_COLOR = (45, 35, 25)       # Deep walnut brown for pockets
 
 
@@ -65,7 +66,8 @@ CUESTICK_SHAFT_COLOR = (200, 170, 140)     # Light warm beige for the shaft
 CUESTICK_TIP_COLOR = (100, 90, 85)         # Soft charcoal gray for the tip
 CUESTICK_THICKNESS = 3.25                # Thickness of the cue stick
 CUESTICK_LENGTH = 320                    # Length of the cue stick
-OFFSET = 30                              # Initial distance between cue stick tip and cue ball
+# Initial distance between cue stick tip and cue ball
+OFFSET = 30
 POWER_STEP = 10                          # Power adjustment step
 ANGLE_STEP = 6                           # Angle rotation step (degrees)
 
@@ -78,42 +80,42 @@ BALL_MASS = 0.17  # Standard mass for billiard balls in kilograms
 max_speed_m_s = 11.623  # Maximum cue ball speed
 MAX_SPEED_PX_S = max_speed_m_s * px_per_m
 
-        # > Command line
-        # spd = float(input("Type the power you want to put into the cue ball (0 - 100): "))
-        # angle_deg = float(input("Type your angle to hit (in degrees, 0°=to the right, 90°=up): "))
+# > Command line
+# spd = float(input("Type the power you want to put into the cue ball (0 - 100): "))
+# angle_deg = float(input("Type your angle to hit (in degrees, 0°=to the right, 90°=up): "))
 
-        # > Pop-up UI
-        # while True:
-        #     try:
-        #         # Prompt for shot power
-        #         power = self.screen.textinput(
-        #             "Power", "Enter shot power (0-100): ")
-        #         if power is None:  # User cancelled
-        #             continue
-        #         power = float(power)
-        #         if not (0 <= power <= 100):
-        #             raise ValueError("Shot power must be between 0 and 100.")
+# > Pop-up UI
+# while True:
+#     try:
+#         # Prompt for shot power
+#         power = self.screen.textinput(
+#             "Power", "Enter shot power (0-100): ")
+#         if power is None:  # User cancelled
+#             continue
+#         power = float(power)
+#         if not (0 <= power <= 100):
+#             raise ValueError("Shot power must be between 0 and 100.")
 
-        #         # Prompt for aiming angle
-        #         angle = self.screen.textinput(
-        #             "Aiming", "Enter aiming angle (in degrees, 0-360): "
-        #         )
-        #         if angle is None:  # User cancelled
-        #             continue
-        #         try:
-        #             angle = float(angle)
-        #             break
-        #         except ValueError:
-        #             raise ValueError("Aiming angle must be integer or float.")
-        #     except ValueError as e:
-        #         out = f"Invalid Input", f"{e}. Press Enter to try again."
-        #         self.screen.textinput(out)
-        # Convert angle to radians and calculate velocity
-        # angle_rad = math.radians(angle)
-        # velocity = (power / 100) * MAX_SPEED_PX_S
-        # # Set velocity for the cue ball
-        # for ball in self.ball_list:
-        #     if isinstance(ball, CueBall):  # Cue ball
-        #         ball.vx = velocity * math.cos(angle_rad)
-        #         ball.vy = velocity * math.sin(angle_rad)
-        # print(power, angle)
+#         # Prompt for aiming angle
+#         angle = self.screen.textinput(
+#             "Aiming", "Enter aiming angle (in degrees, 0-360): "
+#         )
+#         if angle is None:  # User cancelled
+#             continue
+#         try:
+#             angle = float(angle)
+#             break
+#         except ValueError:
+#             raise ValueError("Aiming angle must be integer or float.")
+#     except ValueError as e:
+#         out = f"Invalid Input", f"{e}. Press Enter to try again."
+#         self.screen.textinput(out)
+# Convert angle to radians and calculate velocity
+# angle_rad = math.radians(angle)
+# velocity = (power / 100) * MAX_SPEED_PX_S
+# # Set velocity for the cue ball
+# for ball in self.ball_list:
+#     if isinstance(ball, CueBall):  # Cue ball
+#         ball.vx = velocity * math.cos(angle_rad)
+#         ball.vy = velocity * math.sin(angle_rad)
+# print(power, angle)

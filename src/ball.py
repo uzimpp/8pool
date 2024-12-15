@@ -8,8 +8,11 @@ from config import (
     BALL_BALL_RESTITUTION,
 )
 # from playsound import playsound
+
+
 class Ball:
     """Ball class for simulating the pool game."""
+
     def __init__(self, pos, velocity, info, turtle):
         """Initialize a ball with size, position, velocity, color, and number."""
         self.turtle = turtle
@@ -106,12 +109,13 @@ class Ball:
 
         # Draw the number in the center
         self.turtle.penup()
-        self.turtle.goto(self._pos[0] + (BALL_RADIUS * 0.1245), self._pos[1] - (BALL_RADIUS * 0.575))
+        self.turtle.goto(
+            self._pos[0] + (BALL_RADIUS * 0.1245), self._pos[1] - (BALL_RADIUS * 0.575))
         self.turtle.color("black")
         font_size = int(BALL_RADIUS / 1.4)  # Slightly smaller font size
         self.turtle.write(
             str(self.__number), align="center", font=("Helvetica", font_size, "bold")
-)
+        )
 
     def distance(self, other):
         """Calculate the distance to another ball"""
@@ -142,23 +146,23 @@ class Ball:
         dist = self.distance(other)
         if dist == 0:  # Prevent division by zero
             return
-    
+
         # Unit normal vector
         nx = dx / dist
         ny = dy / dist
-    
+
         # Relative velocity
         dvx = other.vx - self.vx
         dvy = other.vy - self.vy
         vn = dvx * nx + dvy * ny  # Normal velocity
-    
+
         if vn > 0:  # Balls moving away
             return
-    
+
         # Compute impulse
         e = BALL_BALL_RESTITUTION
         impulse = -(1 + e) * vn / (1 / self.mass + 1 / other.mass)
-    
+
         # Apply impulse
         self.vx -= impulse * nx / self.mass
         self.vy -= impulse * ny / self.mass
@@ -170,7 +174,7 @@ class Ball:
         """Update the ball's position and velocity with friction."""
         # F(friction) = µmg
         friction_force = (1 + SLIDING_FRICTION_COEF) * self.mass * GRAVITY
-        speed = self._speed() 
+        speed = self._speed()
         # Calculate speed (Apply Newton's second law)
         # Acceleration due to friction in opposite direction
         # ∑F = ma
@@ -178,11 +182,11 @@ class Ball:
         if speed > 0:
             dx = self.vx / speed
             dy = self.vy / speed
-            
+
             # Friction forces
             ax = -friction_force / self.mass * dx
             ay = -friction_force / self.mass * dy
-            
+
             # Update velocities
             self.vx += ax * dt
             self.vy += ay * dt
@@ -197,7 +201,7 @@ class Ball:
         if speed < min_speed:
             self.vx = 0
             self.vy = 0
-    
+
     def _speed(self):
         return math.sqrt(self.vx**2 + self.vy**2)
 
@@ -206,12 +210,15 @@ class Ball:
         return self._velocity[0] != 0 or self._velocity[1] != 0
 
     def __str__(self):
-        out = f"Ball {self.__number}: Pos=({self._pos[0]:.2f}, {self._pos[1]:.2f})"
+        out = f"Ball {self.__number}: Pos=({self._pos[0]:.2f}, {
+            self._pos[1]:.2f})"
         out += f", Spd=({self._velocity[0]:.2f}, {self._velocity[1]:.2f})"
         return out
 
+
 class CueBall(Ball):
     """Inheritance class for cue ball"""
+
     def __init__(self, pos, velocity, info, turtle):
         """Initialize a cue ball with position, velocity, and color."""
         super().__init__(pos, velocity, info, turtle)
@@ -234,6 +241,7 @@ class CueBall(Ball):
 
 class StripeBall(Ball):
     """Inheritance class for stripe ball"""
+
     def __init__(self, pos, velocity, info, turtle, stripe_color):
         """Initialize a stripe ball with position, velocity, color, and stripe color."""
         super().__init__(pos, velocity, info, turtle)

@@ -10,6 +10,7 @@ from config import (
 
 class Table:
     """Represents a pool table with pockets and dimensions."""
+
     def __init__(self, turtle):
         """Initialize the table with dimensions and a dedicated turtle."""
         self.turtle = turtle
@@ -59,20 +60,20 @@ class Table:
             self.turtle.end_fill()
             self.turtle.penup()
 
-    def draw_trapezoid(self, x, y):
-        # Draw the green cloth area
-        turtle.penup()
-        turtle.goto(x, y)
-        turtle.pensize(0)
-        turtle.pendown()
-        turtle.color((150, 205, 152))  # green cloth
-        turtle.begin_fill()
-        for i in range(2):
-            turtle.forward(2 * CANVAS_WIDTH)
-            turtle.left(90)
-            turtle.forward(2 * CANVAS_HEIGHT)
-            turtle.left(90)
-        turtle.end_fill()
+    # def draw_trapezoid(self, x, y):
+    #     # Draw the green cloth area
+    #     turtle.penup()
+    #     turtle.goto(x, y)
+    #     turtle.pensize(0)
+    #     turtle.pendown()
+    #     turtle.color((150, 205, 152))  # green cloth
+    #     turtle.begin_fill()
+    #     for i in range(2):
+    #         turtle.forward(2 * CANVAS_WIDTH)
+    #         turtle.left(90)
+    #         turtle.forward(2 * CANVAS_HEIGHT)
+    #         turtle.left(90)
+    #     turtle.end_fill()
 
     def check_pockets(self, balls):
         """Check if any balls are pocketed."""
@@ -86,4 +87,3 @@ class Table:
                     self.pocketed.append(ball)
                     break
         return to_remove
-

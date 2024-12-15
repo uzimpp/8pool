@@ -13,6 +13,7 @@ from config import (
 
 class CueStick:
     """Class representing the cue stick."""
+
     def __init__(self, cueball, myturtle):
         """Initialize the cue stick."""
         self.cueball = cueball  # Reference to the cue ball
@@ -36,7 +37,7 @@ class CueStick:
             'middle': CUESTICK_THICKNESS,
             'butt': CUESTICK_THICKNESS * 1.75
         }
-    
+
         # Calculate main positions
         positions = {
             'tip': (
@@ -52,13 +53,13 @@ class CueStick:
                 y + (self.offset + CUESTICK_LENGTH) * math.sin(angle_rad)
             )
         }
-    
+
         # Calculate midbut position
         midbut = (
             (positions['butt'][0] + 1.5 * positions['middle'][0]) / 2.5,
             (positions['butt'][1] + 1.5 * positions['middle'][1]) / 2.5
         )
-    
+
         # Calculate corners for each section
         corners = {}
         for section, (pos_x, pos_y) in positions.items():
@@ -73,7 +74,7 @@ class CueStick:
                     pos_y - width * math.cos(angle_rad)
                 )
             }
-    
+
         # Draw the cue stick
         self._draw_tip(*positions['tip'], angle_rad)
         # Draw handle
@@ -146,32 +147,37 @@ class CueStick:
         # Hit the ball
         angle_rad = math.radians(self.angle)
         velocity = (self.power / 100) * MAX_SPEED_PX_S
-        self.cueball.vx = -velocity * math.cos(angle_rad)  # Update cue ball velocity
+        self.cueball.vx = -velocity * \
+            math.cos(angle_rad)  # Update cue ball velocity
         self.cueball.vy = -velocity * math.sin(angle_rad)
-        print(f"Shoot with {self.power}% power, at angle of {self.angle} degree")
-    
+        print(f"Shoot with {self.power}% power, at angle of {
+              self.angle} degree")
+
     def shooting_animation(self):
         """Animate the cue stick pulling back and then shooting forward."""
         original_offset = self.offset  # Save the initial offset
-        pull_back_distance = original_offset * (0.2 + self.power / 500)  # Scale pull-back with power
-    
+        pull_back_distance = original_offset * \
+            (0.2 + self.power / 500)  # Scale pull-back with power
+
         # Pull-back animation
         for _ in range(10):  # 10 steps for pull-back
-            self.offset = original_offset + (pull_back_distance * (_ / 10))  # Smooth pull back
+            self.offset = original_offset + \
+                (pull_back_distance * (_ / 10))  # Smooth pull back
             self._update_position()  # Redraw cue stick
             self.turtle.getscreen().update()  # Refresh the screen
             self.turtle.getscreen().ontimer(lambda: None, 20)  # Small delay for smoothness
-    
+
         # Forward shooting animation
         for _ in range(50):  # 30 steps for shooting forward
-            self.offset = original_offset + pull_back_distance * (1 - _ / 30)  # Gradually return to impact
+            self.offset = original_offset + pull_back_distance * \
+                (1 - _ / 30)  # Gradually return to impact
             self._update_position()  # Redraw cue stick
             self.turtle.getscreen().update()  # Refresh the screen
             self.turtle.getscreen().ontimer(lambda: None, 10)  # Small delay for smoothness
-    
+
         # Clear the cue stick drawing upon impact
         self.turtle.clear()
-    
+
         # Restore the original offset and set shot position
         self.offset = original_offset
         self.shot_position = [self.cueball.x, self.cueball.y]
@@ -196,5 +202,6 @@ class CueStick:
         self.power = 0             # Reset power for next shot
         self.offset = OFFSET       # Reset distance
         self._update_position()    # Dynamically follow the cue ball
+
     def __str__(self):
         return f"Current power {self.power}, Current angle {self.angle}"
