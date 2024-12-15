@@ -1,135 +1,120 @@
 import turtle
-import random
 import math
 from ball import Ball, CueBall, StripeBall
-from cuestick import CueStick
 from table import Table
+from config import (
+    BALL_COLORS,
+    BALL_ROWS,
+    BALL_RADIUS,
+    BALL_DIAMETER,
+    PEN_SIZE,
+    TABLE_LENGTH,
+    TABLE_WIDTH,
+    POOL_TABLE_COLOR,
+    HZ,
+    DT,
+    MAX_SPEED_PX_S,
+)
+
 
 class PoolSimulator:
+    """Main class for simulating the pool game."""
     def __init__(self, myturtle):
-        """Basics"""
-        self.turtle = myturtle
-        self.pen_size = 3
+        """Initialize the Pool Simulator with turtle instance."""
+        self.turtle = myturtle # main
         self.ball_list = []
-        self.HZ = 60
-        self.dt = 1.0 / self.HZ
+        self.HZ = HZ
+        self.dt = DT
         self.screen = turtle.Screen()
 
-        """Object balls"""
-        # Ball radius (approx. 2.25" diameter, 2.25"/12 = 0.1875 ft * 100 px/ft ≈ 18.75 px dia)
-        # Radius ~9 px
-        ball_radius = 11
-        ball_colors = {
-            1: (255, 223, 86),     # yellow
-            2: (62, 88, 240),      # blue
-            3: (242, 63, 51),      # red
-            4: (136, 67, 190),     # purple
-            5: (251, 129, 56),     # orange
-            6: (151, 234, 160),    # green
-            7: (139, 0, 0),        # maroon
-            8: (21, 9, 30),        # black
-            9: (248, 240, 211),
-            10: (248, 240, 211),
-            11: (248, 240, 211),
-            12: (248, 240, 211),
-            13: (248, 240, 211),
-            14: (248, 240, 211),
-            15: (248, 240, 211),
-        }  # Ball colors and arrangement
-        ball_rows = [
-            [1],
-            [2, 3],
-            [4, 5, 6],
-            [7, 8, 9, 10],
-            [11, 12, 13, 14, 15]
-        ]  # The standard 15-ball triangle:
-        ball_diameter =  2 * ball_radius + 2 * self.pen_size
+        # Initialize table and balls
+        self._setup_table()
+        self._setup_balls()
 
-        """Table and screen"""
-        # Table dimensions (in feet): 9ft x 4.5ft
-        # Scale: 1 ft = 100 px
-        # 1 meter = 30.48 px
-        # Table in pixels: 900 px x 450 px
-        self.table_length = 900
-        self.table_width = 450
-        self.screen.setup(width=self.table_length + 100, height=self.table_width + 100)
+    def _setup_table(self):
+        """Set up the pool table dimensions and visuals."""
+        self.table_length = TABLE_LENGTH
+        self.table_width = TABLE_WIDTH
+        self.screen.setup(TABLE_LENGTH + 100,
+                          TABLE_WIDTH + 100)
 
-        # Canvas half-width and half-height for convenience
         self.canvas_width = self.table_length / 2
         self.canvas_height = self.table_width / 2
 
-        self.table = Table(self.table_length, self.table_width, ball_diameter)
+        # Table pockets and boundaries
+        self.table = Table(self.table_length, self.table_width, BALL_DIAMETER)
 
-        """Cue ball"""
-        # placing the cue ball on the left
-        cue_x = -self.canvas_width / 3
-        cue_y = 0
-        cue_ball_color = (253, 249, 237)  # off-white
-        cueball = CueBall(ball_radius, cue_x, cue_y, 0, 0, cue_ball_color, self.pen_size, number=None)
-        self.ball_list.append(cueball)
-
-        """Cue Stick"""
-        # self.cuestick = CueStick("cuestick.gif", cueball, 90)
-
+    def _setup_balls(self):
+        """Arrange the balls on the pool table."""
+        # Object balls
         start_x = self.canvas_width / 3
         start_y = 0
-        # y_spacing = ball_radius   # y offset between rows in each column is ball_diameter already
-        x_spacing = ball_diameter * math.sqrt(3)/2
+        x_spacing = BALL_DIAMETER * math.sqrt(3) / 2
         row_x = start_x
-        for row in ball_rows:
-            row_height = (len(row)-1) * ball_diameter
-            row_y = start_y - row_height/2
+        for row in BALL_ROWS:
+            row_height = (len(row) - 1) * BALL_DIAMETER
+            row_y = start_y - row_height / 2
             for num in row:
-                color = ball_colors[num]
-                if num >= 9:
-                    stripe_color = color = ball_colors[num % 8]
-                    b = StripeBall(ball_radius, row_x, row_y, 0,
-                                   0, color, stripe_color, self.pen_size, number=num)
-                else:
-                    b = Ball(ball_radius, row_x, row_y,
-                             0, 0, color, self.pen_size, number=num)
-                self.ball_list.append(b)
-                row_y += ball_diameter
-            # Add spacing for the next
+                ball = self._create_ball(row_x, row_y, num)
+                self.ball_list.append(ball)
+                row_y += BALL_DIAMETER
             row_x += x_spacing
 
+        # Cue ball
+        cue_x = -self.canvas_width / 3
+        cue_y = 0
+        cueball = CueBall([cue_x, cue_y], [0, 0], [None, BALL_COLORS[15]])
+        self.ball_list.append(cueball)
+
+    def _create_ball(self, x, y, num):
+        """Create a Ball or StripeBall."""
+        info = [num, BALL_COLORS[num]]
+        if num >= 9:
+            stripe_color = BALL_COLORS[num % 8]
+            return StripeBall([x, y], [0, 0], info, stripe_color)
+        return Ball([x, y], [0, 0], info)
+
     def find_ball(self, number):
+        """Find a ball by its number."""
         for ball in self.ball_list:
             if ball.number == number:
                 return ball
         return None
 
     def input(self):
-        """Aim and apply power."""
-        
+        """Handle user input for aiming and hitting the cue ball."""
         # > Command line
         # spd = float(input("Type the power you want to put into the cue ball (0 - 100): "))
         # angle_deg = float(input("Type your angle to hit (in degrees, 0°=to the right, 90°=up): "))
-        
+
         # > Pop-up UI
         while True:
             try:
-                # Prompt the user for shot power (ensure it's a valid float within range)
-                power = self.screen.textinput("Power", "Enter shot power (0-100): ")
-                if power is None:  # User cancelled the input
+                # Prompt for shot power
+                power = self.screen.textinput(
+                    "Power", "Enter shot power (0-100): ")
+                if power is None:  # User cancelled
                     continue
                 power = float(power)
                 if not (0 <= power <= 100):
                     raise ValueError("Shot power must be between 0 and 100.")
-        
-                # Prompt the user for aiming angle (ensure it's a valid float)
-                angle = self.screen.textinput("Aiming", "Enter aiming angle (in degrees, 0-360): ")
-                if angle is None:  # User cancelled the input
+
+                # Prompt for aiming angle
+                angle = self.screen.textinput(
+                    "Aiming", "Enter aiming angle (in degrees, 0-360): "
+                )
+                if angle is None:  # User cancelled
                     continue
                 try:
                     angle = float(angle)
                     break
                 except ValueError:
-                    raise ValueError("Aiming angle must be integer or float")
+                    raise ValueError("Aiming angle must be integer or float.")
             except ValueError as e:
-                # Inform the user about invalid input and restart the loop
-                self.screen.textinput("Invalid Input", f"{e}. Press Enter to try again.")
-        # > 
+                out = f"Invalid Input", f"{e}. Press Enter to try again."
+                self.screen.textinput(out)
+
+        # >
         # angle = 90  # Default aiming angle
         # while True:
         #     key = self.screen.textinput("Aiming", "Press 'a' to rotate left, 'd' to rotate right, 'enter' to shoot:")
@@ -142,127 +127,117 @@ class PoolSimulator:
         #     self.cue_stick.set_angle(angle)
         #     self.cue_stick.show()
 
-        # self.cue_stick.hide()
+        # Convert angle to radians and calculate velocity
         angle_rad = math.radians(angle)
+        velocity = (power / 100) * MAX_SPEED_PX_S
 
-        max_speed_m_s = 11.623
-        px_per_m = 30.48
-        max_speed_px_s = max_speed_m_s * px_per_m
-        v = (power / 100) * max_speed_px_s
-
-        for i in self.ball_list:
-            if i.number is None:
-                i.vx = v * math.cos(angle_rad)
-                i.vy = v * math.sin(angle_rad)
+        # Set velocity for the cue ball
+        for ball in self.ball_list:
+            if isinstance(ball, CueBall):  # Cue ball
+                ball.vx = velocity * math.cos(angle_rad)
+                ball.vy = velocity * math.sin(angle_rad)
         print(power, angle)
 
     def run(self):
+        """Main game loop."""
         game_over = False
         while not game_over:
-            self.__update()
-            if self.next_move():
-                if self.is_game_won():
+            self._update_game()
+            if self._next_move():
+                if self._is_game_won():
                     game_over = True
                 else:
                     self.input()
 
-        self.display_win_message()
+        self._display_win_message()
 
-    def __update(self):
-        for b in self.ball_list:
-            b.move(self.dt)
+    def _update_game(self):
+        """Update the game state."""
+        for ball in self.ball_list:
+            ball.move(self.dt)
             self.check_pockets()
-            self.check_table_edge_collisions(b)
+            self.check_table_edge_collisions(ball)
         self.check_ball_collisions()
-        self.__redraw()
+        self._redraw()
 
-    def __redraw(self):
+    def _redraw(self):
+        """Clear and redraw the table and balls."""
         turtle.clear()
         self.table.draw_table()
-        for b in self.ball_list:
-            b.draw()
+        for ball in self.ball_list:
+            ball.draw()
         turtle.update()
 
-    def next_move(self):
-        for ball in self.ball_list:
-            if ball.is_moving():
-                return False
-        return True
+    def _next_move(self):
+        """Check if all balls have stopped moving."""
+        return all(not ball.is_moving() for ball in self.ball_list)
 
     def check_pockets(self):
-        to_rm = self.table.check_pockets(self.ball_list)
-        for ball in to_rm:
+        """Check for balls pocketed."""
+        pocketed_balls = self.table.check_pockets(self.ball_list)
+        for ball in pocketed_balls:
             if ball.number is None:  # Cue ball pocketed
-                self.handle_cue_ball_pocketed(ball)
+                self._handle_cue_ball_pocketed(ball)
             else:
-                self.ball_list.remove(ball)  # Remove other balls as usual
-            print(ball.number)
+                self.ball_list.remove(ball)  # Remove other balls
+            print(f"Ball {ball.number} is pocketed")
 
-    def handle_cue_ball_pocketed(self, ball):    
-        # Penalize the player (display a message or adjust scores, if applicable)
-        self.screen.textinput("Scratch!", "The cue ball has been pocketed! Press Enter to continue.")
-        # Place the cue ball back on the table
-        # Behind the head string (1/3 of table length from the nearest rail)
-        ball.x = -self.canvas_width / 3
+
+    def _handle_cue_ball_pocketed(self, ball):
+        """Handle the event when the cue ball is pocketed."""
+        self.screen.textinput(
+            "Scratch!", "The cue ball has been pocketed! Press Enter to continue."
+        )
+        ball.x = -self.canvas_width / 3  # Reset position
         ball.y = 0
         ball.vx = 0
         ball.vy = 0
 
     def check_table_edge_collisions(self, ball):
-        # For now, keep using the canvas_width/canvas_height as your boundaries
-        # If you want balls to only bounce inside a smaller inner area, adjust here
-        if ball.x - ball.size < -self.canvas_width:
-            ball.x = -self.canvas_width + ball.size
-            ball.vx = -ball.vx
-        elif ball.x + ball.size > self.canvas_width:
-            ball.x = self.canvas_width - ball.size
-            ball.vx = -ball.vx
-
-        if ball.y - ball.size < -self.canvas_height:
-            ball.y = -self.canvas_height + ball.size
-            ball.vy = -ball.vy
-        elif ball.y + ball.size > self.canvas_height:
-            ball.y = self.canvas_height - ball.size
-            ball.vy = -ball.vy
+        """Check and handle collisions with table edges."""
+        ball.bounce_off_horizontal(self.canvas_width)
+        ball.bounce_off_vertical(self.canvas_height)
 
     def check_ball_collisions(self):
+        """Check and handle collisions between balls."""
         n = len(self.ball_list)
         for i in range(n):
             for j in range(i + 1, n):
-                bi = self.ball_list[i]
-                bj = self.ball_list[j]
-                dx = bj.x - bi.x
-                dy = bj.y - bi.y
-                dist = math.sqrt(dx * dx + dy * dy)
-                if dist < (bi.size + bj.size):
-                    bi.bounce_off(bj)
-                    overlap = (bi.size + bj.size) - dist
+                ball1 = self.ball_list[i]
+                ball2 = self.ball_list[j]
+                dx = ball2.x - ball1.x
+                dy = ball2.y - ball1.y
+                dist = math.sqrt(dx**2 + dy**2)
+                if dist < (ball1.size + ball2.size):
+                    ball1.bounce_off(ball2)
+                    overlap = (ball1.size + ball2.size) - dist
                     nx = dx / dist
                     ny = dy / dist
-                    bi.x -= nx * (overlap / 2)
-                    bi.y -= ny * (overlap / 2)
-                    bj.x += nx * (overlap / 2)
-                    bj.y += ny * (overlap / 2)
+                    ball1.x -= nx * (overlap / 2)
+                    ball1.y -= ny * (overlap / 2)
+                    ball2.x += nx * (overlap / 2)
+                    ball2.y += ny * (overlap / 2)
 
-    def is_game_won(self):
+    def _is_game_won(self):
+        """Check if the game is won."""
         return len(self.ball_list) == 1 and self.ball_list[0].number is None
 
-    def display_win_message(self):
+    def _display_win_message(self):
+        """Display a victory message."""
         self.turtle.color("black")
-        self.turtle.write("Victory!!!!", align="center", font=("Helvetica", 36))
+        self.turtle.write("Victory!!!!", align="center",
+                          font=("Helvetica", 36))
 
 
 # Run the simulation
-screen = turtle.Screen()
+if __name__ == "__main__":
+    screen = turtle.Screen()
+    screen.tracer(0)
+    screen.colormode(255)
+    screen.bgcolor(POOL_TABLE_COLOR)
 
-# Set up the screen
-screen.tracer(0)
-screen.colormode(255)
-screen.bgcolor((173, 106, 62))
-
-# Create a turtle instance
-myturtle = turtle.Turtle()
-myturtle.speed(0)
-myturtle.hideturtle()
-sim = PoolSimulator(myturtle)
-sim.run()
+    myturtle = turtle.Turtle()
+    myturtle.speed(0)
+    myturtle.hideturtle()
+    sim = PoolSimulator(myturtle)
+    sim.run()

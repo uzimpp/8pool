@@ -1,5 +1,6 @@
 import turtle
 
+
 class CueStick:
     def __init__(self, image, cueball, angle_deg=90):
         # Create a turtle for the cue stick

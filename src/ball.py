@@ -1,222 +1,278 @@
 import turtle
 import math
+from config import (
+    CREAM,
+    BALL_MASS,
+    BALL_RADIUS,
+    GRAVITY,
+    FRICTION_COEIFFICIENT,
+)
 # from playsound import playsound
 
+
 class Ball:
-    def __init__(self, size, x, y, vx, vy, color, pen_size, number=None):
-        self.size = size
-        self.x = x
-        self.y = y
-        self.vx = vx
-        self.vy = vy
-        self.color = color
-        self.number = number
-        self.pen_size = pen_size
-        self.mass = 0.17
+    """Ball class for simulating the pool game."""
+    def __init__(self, pos, velocity, info):
+        """Initialize a ball with size, position, velocity, color, and number."""
+        self._pos = pos
+        self._velocity = velocity
+        self.__number = info[0]
+        self.__color = info[1]
+
+    @property
+    def x(self):
+        """pos x"""
+        return self._pos[0]
+
+    @x.setter
+    def x(self, x):
+        """pos x"""
+        self._pos[0] = x
+
+    @property
+    def y(self):
+        """pos y"""
+        return self._pos[1]
+
+    @y.setter
+    def y(self, y):
+        """pos y"""
+        self._pos[1] = y
+
+    @property
+    def vx(self):
+        """velocity x"""
+        return self._velocity[0]
+
+    @vx.setter
+    def vx(self, vx):
+        """velocity x"""
+        self._velocity[0] = vx
+
+    @property
+    def vy(self):
+        """velocity y"""
+        return self._velocity[1]
+
+    @vy.setter
+    def vy(self, vy):
+        """velocity y"""
+        self._velocity[1] = vy
+
+    @property
+    def number(self):
+        """number"""
+        return self.__number
+
+    @property
+    def color(self):
+        """pos y"""
+        return self.__color
+
+    @property
+    def size(self):
+        """size or radius of ball"""
+        return BALL_RADIUS
+
+    @property
+    def mass(self):
+        """mass of ball"""
+        return BALL_MASS
 
     def draw(self):
-        # Draw the ball
+        """Draw the ball on the table."""
         turtle.hideturtle()
         turtle.pensize(3)
         turtle.penup()
-        turtle.goto(self.x, self.y - self.size)
-        turtle.color(self.color)
-        turtle.fillcolor(self.color)
+        turtle.goto(self._pos[0], self._pos[1] - BALL_RADIUS)
+        turtle.color(self.__color)
+        turtle.fillcolor(self.__color)
         turtle.pendown()
         turtle.begin_fill()
-        turtle.circle(self.size)
+        turtle.circle(BALL_RADIUS)
         turtle.end_fill()
-        self.draw_inner_number()
+        self._draw_inner_number()
         turtle.pensize(0)
 
-    def draw_inner_number(self):
-        # Draw inner white circle to create a ring (stripe)
-        inner_white_radius = self.size * 0.5
+    def _draw_inner_number(self):
+        """Draw the number on the ball."""
+        inner_white_radius = BALL_RADIUS * 0.5
         turtle.penup()
-        turtle.goto(self.x, self.y - inner_white_radius)
+        turtle.goto(self._pos[0], self._pos[1] - inner_white_radius)
         turtle.pendown()
-        turtle.color((248, 240, 211))
+        turtle.color(CREAM)  # Cream color
         turtle.begin_fill()
         turtle.circle(inner_white_radius)
         turtle.end_fill()
 
-        # Write the number in the center
+        # Draw the number in the center
         turtle.penup()
-        # Move to the center of the ball
-        turtle.goto(self.x + (self.size * 0.2), self.y - (self.size * 0.6))
+        turtle.goto(self._pos[0], self._pos[1] - (BALL_RADIUS * 0.6))
         turtle.color("black")
-        turtle.write(str(self.number), align="center",
-                     font=("Helvetica", int(self.size / 1.25)))
+        font_size = int(BALL_RADIUS / 1.25)
+        turtle.write(
+            str(self.__number), align="center", font=("Helvetica", font_size))
 
-    def distance(self, that):
-        x1 = self.x
-        y1 = self.y
-        x2 = that.x
-        y2 = that.y
-        d = math.sqrt((y2 - y1) **2 + (x2 - x1) **2)
-        return d
+    def distance(self, other):
+        """Calculate the distance to another ball"""
+        return math.sqrt((other.y - self._pos[1]) ** 2 + (other.x - self._pos[0]) ** 2)
 
-    def bounce_off_vertical_table_edge(self):
-        self.vx = -self.vx
+    def bounce_off_horizontal(self, canvas_width):
+        """Handle collisions with the horizontal edges of the table"""
+        if self._pos[0] - BALL_RADIUS < -canvas_width:
+            self._pos[0] = -canvas_width + BALL_RADIUS
+            self._velocity[0] = -self._velocity[0]
+        elif self._pos[0] + BALL_RADIUS > canvas_width:
+            self._pos[0] = canvas_width - BALL_RADIUS
+            self._velocity[0] = -self._velocity[0]
 
-    def bounce_off_horizontal_table_edge(self):
-        self.vy = -self.vy
+    def bounce_off_vertical(self, canvas_height):
+        """Handle collisions with the vertical edges of the table."""
+        if self._pos[1] - BALL_RADIUS < -canvas_height:
+            self._pos[1] = -canvas_height + BALL_RADIUS
+            self._velocity[1] = -self._velocity[1]
+        elif self._pos[1] + BALL_RADIUS > canvas_height:
+            self._pos[1] = canvas_height - BALL_RADIUS
+            self._velocity[1] = -self._velocity[1]
 
-    def bounce_off(self, that):
-        """The coefficient of restitution (COR) is a measure of how much kinetic energy is preserved
-        during a collision between objects.
-        basically "bounciness" of the collision.
-        Billiard balls: ~0.95"""
+    def bounce_off(self, other):
+        """Handle ball-to-ball collisions with energy preservation."""
+        dx = other.x - self._pos[0]
+        dy = other.y - self._pos[1]
+        dist = self.distance(other)
 
-        """For physically acceptable collisions 0 < e < 1. The value of e = 1 corresponds to an elastic collision, whereas
-        the value of e = 0 corresponds to a totally inelastic collision in which the restoration impulse is equal to
-        zero.
-        We can consider each particle separately and set the impulse on the particle equal to the change of linear
-        momentum"""
-        # e = 0.95 # coefficient_of_restitution or e
-        # dx  = that.x - self.x # Direction of pos in x-axis
-        # dy  = that.y - self.y # Direction of pos in y-axis
-        # dist = math.sqrt(dx*dx + dy*dy)
-
-        # dvx = that.vx - self.vx # Direction of velocity in x-axis
-        # dvy = that.vy - self.vy # Direction of velocity in Y-axis
-        # dvdr = (dx * dvx) + (dy * dvy) # A result vector
-        # if dist == 0 or dvdr > 0: # Check if balls are actually moving towards each other
-        #     return
-        # # By the
-        # j = -(1 + e) * (dvdr/dist) / ((1/self.mass) + (1/that.mass))
-        # print(self.distance(that), math.sqrt(dx * dx + dy * dy))
-        # fx = j * dx / dist
-        # fy = j * dy / dist
-
-        # # update velocities according to normal force
-        # self.vx += fx / self.mass
-        # self.vy += fy / self.mass
-        # that.vx -= fx / that.mass
-        # that.vy -= fy / that.mass
-
-        # self.count += 1
-        # that.count += 1
-        e = 0.95
-        dx = that.x - self.x
-        dy = that.y - self.y
-        dist = self.distance(that)
         # Unit normal vector
         nx = dx / dist
         ny = dy / dist
 
         # Relative velocity
-        dvx = that.vx - self.vx
-        dvy = that.vy - self.vy
-        vn = dvx * nx + dvy * ny  # velocity along the normal direction
+        dvx = other.vx - self._velocity[0]
+        dvy = other.vy - self._velocity[1]
+        vn = dvx * nx + dvy * ny  # Normal velocity
+        if vn > 0:  # vn > 0 if balls are moving away
+            return  # Thus, no collision
 
-        if vn > 0:
-            return
+        # Compute impulse with coefficient of restitution
+            # """The coefficient of restitution (COR) is a measure
+            # of how much kinetic energy is preserved during a collision between objects.
+            # basically "bounciness" of the collision.
+            # Billiard balls: ~0.95"""
 
-        # Compute impulse
+            # """For physically acceptable collisions 0 < e < 1.
+            # The value of e = 1 corresponds to an elastic collision, whereas
+            # the value of e = 0 corresponds to a totally inelastic collision
+            # in which the restoration impulse is equal to zero.
+            # We can consider each particle separately
+            # and set the impulse on the particle equal to the change of linear momentum"""
+        e = 0.95  # Coefficient of restitution for billiard balls
+        # We can acutaully use BALL_MASS here since every ball has identical mass
+        # I leave it like this to make it more understandable.
         m1 = self.mass
-        m2 = that.mass
-        J = -(1 + e) * vn / (1 / m1 + 1 / m2)
-        # Apply impulse to each ball
-        self.vx -= (J * nx) / m1
-        self.vy -= (J * ny) / m1
-        that.vx += (J * nx) / m2
-        that.vy += (J * ny) / m2
+        m2 = other.mass
+        impulse = -(1 + e) * vn / (1 / m1 + 1 /m2)
+
+        # Apply impulse to both balls
+        self._velocity[0] -= (impulse * nx) / m1
+        self._velocity[1] -= (impulse * ny) / m2
+        other.vx += (impulse * nx) / m1
+        other.vy += (impulse * ny) / m2
         # playsound("collision.mp3")
 
     def move(self, dt):
-        """ Apply friction"""
+        """Update the ball's position and velocity with friction."""
         # F(friction) = µmg
-        gravity = 9.8
-        friction_coefficient = 0.3 # ball-cloth coefficient of sliding friction
-        friction_force = (1 + friction_coefficient) * self.mass * gravity
-
-        """ Apply Newton's second law"""
-        speed = math.sqrt((self.vx ** 2) + (self.vy ** 2))
+        friction_force = (1 + FRICTION_COEIFFICIENT) * BALL_MASS * GRAVITY
+        # Calculate speed (Apply Newton's second law)
+        # Acceleration due to friction in opposite direction
+        # ∑F = ma
+        # We will get Fsin(ø) = ma
+        speed = math.sqrt(self._velocity[0]**2 + self._velocity[1]**2)
         if speed > 0:
-            # Direction of the ball
-            dx = self.vx / speed
-            dy = self.vy / speed
-            # Acceleration due to friction in opposite direction
-            # ∑F = ma
-            # We will get Fsin(ø) = ma
-            ax = -friction_force / self.mass * dx
-            ay = -friction_force / self.mass * dy
+            # Direction of motion
+            dx = self._velocity[0] / speed
+            dy = self._velocity[1] / speed
+            # Calculate acceleration due to friction
+            ax = (-friction_force / BALL_MASS) * dx
+            ay = (-friction_force / BALL_MASS) * dy
         else:
             ax = 0
             ay = 0
 
         # Update velocities and positions
-        self.vx += ax * dt
-        self.vy += ay * dt
-        # friction_coefficient = 0.997
-        # self.vx *= friction_coefficient
-        # self.vy *= friction_coefficient
-        self.x += self.vx * dt
-        self.y += self.vy * dt
+        self._velocity[0] += ax * dt
+        self._velocity[1] += ay * dt
+        self._pos[0] += self._velocity[0] * dt
+        self._pos[1] += self._velocity[1] * dt
 
-        # Stop if slow enough
+        # Stop the ball if its is slow enough
         min_velocity = 0.4
-        if abs(self.vx) < min_velocity and abs(self.vy) < min_velocity:
-            self.vx = 0
-            self.vy = 0
+        if abs(self._velocity[0]) < min_velocity and abs(self._velocity[1]) < min_velocity:
+            self._velocity[0] = 0
+            self._velocity[1] = 0
 
     def is_moving(self):
-        if self.vx == 0 and self.vy == 0:
-            return False
-        return True
+        """Check if the ball is moving."""
+        return self._velocity[0] != 0 or self._velocity[1] != 0
 
     def __str__(self):
-        return f"Ball: {self.number} | Position: ({self.x},{self.y}) | Velocity: ({self.vx},{self.vy})"
+        out = f"Ball {self.__number}: Pos=({self._pos[0]:.2f}, {self._pos[1]:.2f})"
+        out += f", Spd=({self._velocity[0]:.2f}, {self._velocity[1]:.2f})"
+        return out
 
 class CueBall(Ball):
-    def __init__(self, size, x, y, vx, vy, color, pen_size, number=None):
-        super().__init__(size, x, y, vx, vy, color, pen_size, number)
+    """Inheritance class for cue ball"""
+    def __init__(self, pos, velocity, info):
+        """Initialize a cue ball with position, velocity, and color."""
+        super().__init__(pos, velocity, info)
         # self.turtle = turtle.Turtle()
 
     def draw(self):
-        # Draw the ball
+        """Draw the cue ball."""
         turtle.hideturtle()
         turtle.pensize(3)
         turtle.penup()
-        turtle.goto(self.x, self.y - self.size)
+        turtle.goto(self.x, self.y - BALL_RADIUS)
         turtle.color(self.color)
         turtle.fillcolor(self.color)
         turtle.pendown()
         turtle.begin_fill()
-        turtle.circle(self.size)
+        turtle.circle(BALL_RADIUS)
         turtle.end_fill()
         turtle.pensize(0)
-    
+
+
 class StripeBall(Ball):
-    def __init__(self, size, x, y, vx, vy, color, stripe_color, pen_size, number=None):
-        super().__init__(size, x, y, vx, vy, color, pen_size, number)
+    """Inheritance class for stripe ball"""
+    def __init__(self, pos, velocity, info, stripe_color):
+        """Initialize a stripe ball with position, velocity, color, and stripe color."""
+        super().__init__(pos, velocity, info)
         # self.turtle = turtle.Turtle()
-        self.stripe_color = stripe_color
+        self.__stripe_color = stripe_color
 
     def draw(self):
-        # Draw the ball
+        """Draw the striped ball."""
         turtle.hideturtle()
         turtle.pensize(3)
         turtle.penup()
-        turtle.goto(self.x, self.y - self.size)
-        turtle.color((248, 240, 211))
-        turtle.fillcolor((248, 240, 211))
+        turtle.goto(self.x, self.y - BALL_RADIUS)
+        turtle.color(CREAM)  # Cream base
+        turtle.fillcolor(CREAM)
         turtle.pendown()
         turtle.begin_fill()
-        turtle.circle(self.size)
+        turtle.circle(BALL_RADIUS)
         turtle.end_fill()
 
-        self.draw_stripe()
-        self.draw_inner_number()
+        self._draw_stripe()
+        self._draw_inner_number()
         turtle.pensize(0)
 
-    def draw_stripe(self):
-        stripe_radius = self.size * 0.8
+    def _draw_stripe(self):
+        """Draw the stripe on the ball."""
+        stripe_radius = BALL_RADIUS * 0.8
         turtle.penup()
         turtle.goto(self.x, self.y - stripe_radius)
         turtle.pendown()
-        turtle.color(self.stripe_color, self.stripe_color)
+        turtle.color(self.__stripe_color, self.__stripe_color)
         turtle.begin_fill()
         turtle.circle(stripe_radius)
         turtle.end_fill()
