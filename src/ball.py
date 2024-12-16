@@ -13,10 +13,28 @@ from config import (
 
 
 class Ball:
-    """Ball class for simulating the pool game."""
+    """
+    Ball class for simulating the pool game.
 
+    Attributes:
+        turtle: The turtle object used for drawing.
+        physics: A dictionary containing the ball's position and velocity.
+        properties: A dictionary containing the ball's number and color.
+    """
     def __init__(self, pos, velocity, info, turtle):
-        """Initialize a ball with size, position, velocity, color, and number."""
+        """
+        Initialize a ball with size, position, velocity, color, and number.
+
+        Parameters:
+            pos (tuple): Initial position of the ball (x, y).
+            velocity (tuple): Initial velocity of the ball (vx, vy).
+            info (tuple): Contains the ball's number and color.
+            turtle (Turtle): The turtle object used for drawing.
+
+        Modifies:
+            self.physics: Sets initial position and velocity.
+            self.properties: Sets the ball's number and color.
+        """
         self.turtle = turtle
         # Group physics attributes
         self.physics = {
@@ -31,66 +49,131 @@ class Ball:
 
     @property
     def x(self):
-        """pos x"""
+        """
+        Get the x-coordinate of the ball's position.
+
+        Returns:
+            float: The x-coordinate of the ball's position.
+        """
         return self.physics['pos'][0]
 
     @x.setter
     def x(self, x):
-        """pos x"""
+        """
+        Set the x-coordinate of the ball's position.
+
+        Modifies:
+            self.physics['pos'][0]: Updates the x-coordinate of the ball's position.
+        """
         self.physics['pos'][0] = x
 
     @property
     def y(self):
-        """pos y"""
+        """
+        Get the y-coordinate of the ball's position.
+
+        Returns:
+            float: The y-coordinate of the ball's position.
+        """
         return self.physics['pos'][1]
 
     @y.setter
     def y(self, y):
-        """pos y"""
+        """
+        Set the y-coordinate of the ball's position.
+
+        Modifies:
+            self.physics['pos'][1]: Updates the y-coordinate of the ball's position.
+        """
         self.physics['pos'][1] = y
 
     @property
     def vx(self):
-        """velocity x"""
+        """
+        Get the x-component of the ball's velocity.
+
+        Returns:
+            float: The x-component of the ball's velocity.
+        """
         return self.physics['velocity'][0]
 
     @vx.setter
     def vx(self, vx):
-        """velocity x"""
+        """
+        Set the x-component of the ball's velocity.
+
+        Modifies:
+            self.physics['velocity'][0]: Updates the x-component of the ball's velocity.
+        """
         self.physics['velocity'][0] = vx
 
     @property
     def vy(self):
-        """velocity y"""
+        """
+        Get the y-component of the ball's velocity.
+
+        Returns:
+            float: The y-component of the ball's velocity.
+        """
         return self.physics['velocity'][1]
 
     @vy.setter
     def vy(self, vy):
-        """velocity y"""
+        """
+        Set the y-component of the ball's velocity.
+
+        Modifies:
+            self.physics['velocity'][1]: Updates the y-component of the ball's velocity.
+        """
         self.physics['velocity'][1] = vy
 
     @property
     def number(self):
-        """number"""
+        """
+        Get the ball's number.
+
+        Returns:
+            int: The number of the ball.
+        """
         return self.properties['number']
 
     @property
     def color(self):
-        """pos y"""
+        """
+        Get the ball's color.
+
+        Returns:
+            str: The color of the ball.
+        """
         return self.properties['color']
 
     @property
     def size(self):
-        """size or radius of ball"""
+        """
+        Get the size or radius of the ball.
+
+        Returns:
+            float: The radius of the ball.
+        """
         return BALL_RADIUS
 
     @property
     def mass(self):
-        """mass of ball"""
+        """
+        Get the mass of the ball.
+
+        Returns:
+            float: The mass of the ball.
+        """
         return BALL_MASS
 
     def draw(self):
-        """Draw the ball on the table."""
+        """
+        Draw the ball on the table.
+
+        Modifies:
+            Uses turtle to draw the ball on the canvas.
+        """
         self.turtle.hideturtle()
         self.turtle.pensize(3)
         self.turtle.penup()
@@ -105,7 +188,12 @@ class Ball:
         self.turtle.pensize(0)
 
     def _draw_inner_number(self):
-        """Draw the number on the ball."""
+        """
+        Draw the number on the ball.
+
+        Modifies:
+            Uses turtle to draw the number on the ball.
+        """
         inner_white_radius = BALL_RADIUS * 0.5
         self.turtle.penup()
         self.turtle.goto(self.x, self.y - inner_white_radius)
@@ -136,7 +224,16 @@ class Ball:
         return math.sqrt((other.y - self.y) ** 2 + (other.x - self.x) ** 2)
 
     def bounce_off_horizontal_rail(self, canvas_width):
-        """Handle collisions with the horizontal edges of the table"""
+        """
+        Handle collisions with the horizontal edges of the table.
+
+        Parameters:
+            canvas_width (float): The width of the canvas.
+
+        Modifies:
+            self.x: Adjusts position if collision occurs.
+            self.vx: Adjusts velocity based on collision.
+        """
         # Apply COR between ball and rail
         if self.x - BALL_RADIUS < -canvas_width:
             self.x = -canvas_width + BALL_RADIUS
@@ -146,7 +243,16 @@ class Ball:
             self.vx = -BALL_RAIL_RESTITUTION * self.vx
 
     def bounce_off_vertical_rail(self, canvas_height):
-        """Handle collisions with the vertical edges of the table."""
+        """
+        Handle collisions with the vertical edges of the table.
+
+        Parameters:
+            canvas_height (float): The height of the canvas.
+
+        Modifies:
+            self.y: Adjusts position if collision occurs.
+            self.vy: Adjusts velocity based on collision.
+        """
         # Apply COR between ball and rail
         if self.y - BALL_RADIUS < -canvas_height:
             self.y = -canvas_height + BALL_RADIUS
@@ -156,7 +262,16 @@ class Ball:
             self.vy = -BALL_RAIL_RESTITUTION * self.vy
 
     def bounce_off(self, other):
-        """Handle ball-to-ball collisions with energy preservation."""
+        """
+        Handle ball-to-ball collisions with energy preservation.
+
+        Parameters:
+            other (Ball): The other ball involved in the collision.
+
+        Modifies:
+            self.vx, self.vy: Adjusts velocity based on collision.
+            other.vx, other.vy: Adjusts velocity of the other ball.
+        """
         dx = other.x - self.x
         dy = other.y - self.y
         dist = self.distance(other)
@@ -187,7 +302,16 @@ class Ball:
         # playsound("collision.mp3")
 
     def move(self, dt):
-        """Update the ball's position and velocity with friction."""
+        """
+        Update the ball's position and velocity with friction.
+
+        Parameters:
+            dt (float): Time step for the movement.
+
+        Modifies:
+            self.x, self.y: Updates position based on velocity.
+            self.vx, self.vy: Updates velocity based on friction.
+        """
         friction_force = (1 + SLIDING_FRICTION_COEF) * self.mass * GRAVITY
         speed = self._speed()
         if speed > 0:
@@ -211,23 +335,50 @@ class Ball:
         self.y += self.vy * dt
 
     def _speed(self):
+        """
+        Calculate the speed of the ball.
+
+        Returns:
+            float: The current speed of the ball.
+        """
         return math.sqrt(self.vx**2 + self.vy**2)
 
     def is_moving(self):
-        """Check if the ball is moving."""
+        """
+        Check if the ball is moving.
+
+        Returns:
+            bool: True if the ball is moving, False otherwise.
+        """
         return self.vx != 0 or self.vy != 0
 
     def __str__(self):
+        """
+        Return a string representation of the ball's state.
+
+        Returns:
+            str: A string describing the ball's number, position, and speed.
+        """
         out = f"Ball {self.number}: Pos=({self.x:.2f}, {self.y:.2f})"
         out += f", Spd=({self.vx:.2f}, {self.vy:.2f})"
         return out
 
 
 class CueBall(Ball):
-    """Inheritance class for cue ball"""
+    """
+    Inheritance class for cue ball.
+
+    Attributes:
+        Inherits all attributes from Ball.
+    """
 
     def draw(self):
-        """Draw the cue ball."""
+        """
+        Draw the cue ball.
+
+        Modifies:
+            Uses turtle to draw the cue ball on the canvas.
+        """
         self.turtle.hideturtle()
         self.turtle.pensize(3)
         self.turtle.penup()
@@ -242,15 +393,37 @@ class CueBall(Ball):
 
 
 class StripeBall(Ball):
-    """Inheritance class for stripe ball"""
+    """
+    Inheritance class for stripe ball.
+
+    Attributes:
+        __stripe_color: The color of the stripe on the ball.
+        Inherits all attributes from Ball.
+    """
 
     def __init__(self, pos, velocity, info, turtle):
-        """Initialize a stripe ball with position, velocity, color, and stripe color."""
+        """
+        Initialize a stripe ball with position, velocity, color, and stripe color.
+
+        Parameters:
+            pos (tuple): Initial position of the ball (x, y).
+            velocity (tuple): Initial velocity of the ball (vx, vy).
+            info (tuple): Contains the ball's number, color, and stripe color.
+            turtle (Turtle): The turtle object used for drawing.
+
+        Modifies:
+            self.__stripe_color: Sets the stripe color.
+        """
         super().__init__(pos, velocity, info, turtle)
         self.__stripe_color = info[2]  # Get stripe color from info tuple
 
     def draw(self):
-        """Draw the striped ball."""
+        """
+        Draw the striped ball.
+
+        Modifies:
+            Uses turtle to draw the striped ball on the canvas.
+        """
         self.turtle.hideturtle()
         self.turtle.pensize(3)
         self.turtle.penup()
@@ -267,7 +440,12 @@ class StripeBall(Ball):
         self.turtle.pensize(0)
 
     def _draw_stripe(self):
-        """Draw the stripe on the ball."""
+        """
+        Draw the stripe on the ball.
+
+        Modifies:
+            Uses turtle to draw the stripe on the ball.
+        """
         stripe_radius = BALL_RADIUS * 0.8
         self.turtle.penup()
         self.turtle.goto(self.x, self.y - stripe_radius)

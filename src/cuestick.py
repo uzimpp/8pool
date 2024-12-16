@@ -140,22 +140,23 @@ class CueStick:
     def shoot(self):
         """Shoot the cue ball and freeze the cue stick's position."""
         # simulate the cue stick moving toward the cue ball
-        self.shooting_animation()
-        # Save state
-        self.__shot_position = [self._cueball.x, self._cueball.y]
-        self.__shot_angle = self._angle
-        # Hit the ball
-        angle_rad = math.radians(self._angle)
-        velocity = (self._power / 100) * MAX_SPEED_PX_S
-        # Update cue ball velocity
-        self._cueball.vx = -velocity * math.cos(angle_rad)
-        self._cueball.vy = -velocity * math.sin(angle_rad)
+        if self._power != 0:
+            self.shooting_animation()
+            # Save state
+            self.__shot_position = [self._cueball.x, self._cueball.y]
+            self.__shot_angle = self._angle
+            # Hit the ball
+            angle_rad = math.radians(self._angle)
+            velocity = (self._power / 100) * MAX_SPEED_PX_S
+            # Update cue ball velocity
+            self._cueball.vx = -velocity * math.cos(angle_rad)
+            self._cueball.vy = -velocity * math.sin(angle_rad)
         print(f"Shoot with {self._power}% power, at angle of {self._angle} deg")
 
     def shooting_animation(self):
         """Animate the cue stick pulling back and then shooting forward."""
         offset = self._offset  # Save the initial offset
-        pull_back_dist = offset * (0.2 + self._power / 500)
+        pull_back_dist = offset * (self._power / 100)
         # Scale pull-back with power
 
         # Pull-back animation
