@@ -35,7 +35,7 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 
 3. **Run Setup Script:**
    ```bash
-   python3 main.py
+   python3 src/main.py
    ```
 
 ### Game Rules
@@ -150,16 +150,18 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
 
 ### File Structure
 ```
-pool/
-├── main.py    # Main controller
-├── ball.py        # Ball physics
-├── cuestick.py    # Cue mechanics
-├── table.py       # Table handling
-├── physic.py      # Physics engine
-├── handler.py     # Collision detection
-├── config.py      # Constants
-└── display.py     # Display management
-└── README.md
+/
+├── src/
+│   ├── poolgame.py     # Main controller
+│   ├── ball.py        # Ball physics
+│   ├── cuestick.py    # Cue mechanics
+│   ├── table.py       # Table handling
+│   ├── physic.py      # Physics engine
+│   ├── handler.py     # Collision detection
+│   ├── config.py      # Constants
+│   └── display.py     # Display management
+├── README.md
+└── 8 pool game.png
 ```
 
 ### Core Components
