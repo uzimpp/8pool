@@ -201,8 +201,7 @@ class PoolSimulator:
         self.screen.textinput(
             "Scratch!", "The cue ball has been pocketed! Press Enter to continue."
         )
-        cueball.x = -CANVAS_WIDTH / 3
-        cueball.y = 0
+        cueball.x, cueball.y = CUEBALL_POS
         cueball.vx = 0
         cueball.vy = 0
 
