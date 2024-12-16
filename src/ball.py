@@ -1,3 +1,4 @@
+"""Module containing Ball classes for the pool game simulation."""
 import math
 from config import (
     CREAM,
@@ -16,60 +17,64 @@ class Ball:
     def __init__(self, pos, velocity, info, turtle):
         """Initialize a ball with size, position, velocity, color, and number."""
         self.turtle = turtle
-        self._pos = pos
-        self._velocity = velocity
-        self.__number = info[0]
-        self.__color = info[1]
+        self.physics = {  # Group physics-related attributes
+            'pos': pos,
+            'velocity': velocity
+        }
+        self.properties = {  # Group ball properties
+            'number': info[0],
+            'color': info[1]
+        }
 
     @property
     def x(self):
         """pos x"""
-        return self._pos[0]
+        return self.physics['pos'][0]
 
     @x.setter
     def x(self, x):
         """pos x"""
-        self._pos[0] = x
+        self.physics['pos'][0] = x
 
     @property
     def y(self):
         """pos y"""
-        return self._pos[1]
+        return self.physics['pos'][1]
 
     @y.setter
     def y(self, y):
         """pos y"""
-        self._pos[1] = y
+        self.physics['pos'][1] = y
 
     @property
     def vx(self):
         """velocity x"""
-        return self._velocity[0]
+        return self.physics['velocity'][0]
 
     @vx.setter
     def vx(self, vx):
         """velocity x"""
-        self._velocity[0] = vx
+        self.physics['velocity'][0] = vx
 
     @property
     def vy(self):
         """velocity y"""
-        return self._velocity[1]
+        return self.physics['velocity'][1]
 
     @vy.setter
     def vy(self, vy):
         """velocity y"""
-        self._velocity[1] = vy
+        self.physics['velocity'][1] = vy
 
     @property
     def number(self):
         """number"""
-        return self.__number
+        return self.properties['number']
 
     @property
     def color(self):
         """pos y"""
-        return self.__color
+        return self.properties['color']
 
     @property
     def size(self):
@@ -86,9 +91,9 @@ class Ball:
         self.turtle.hideturtle()
         self.turtle.pensize(3)
         self.turtle.penup()
-        self.turtle.goto(self._pos[0], self._pos[1] - BALL_RADIUS)
-        self.turtle.color(self.__color)
-        self.turtle.fillcolor(self.__color)
+        self.turtle.goto(self.x, self.y - BALL_RADIUS)
+        self.turtle.color(self.color)
+        self.turtle.fillcolor(self.color)
         self.turtle.pendown()
         self.turtle.begin_fill()
         self.turtle.circle(BALL_RADIUS)
@@ -100,7 +105,7 @@ class Ball:
         """Draw the number on the ball."""
         inner_white_radius = BALL_RADIUS * 0.5
         self.turtle.penup()
-        self.turtle.goto(self._pos[0], self._pos[1] - inner_white_radius)
+        self.turtle.goto(self.x, self.y - inner_white_radius)
         self.turtle.pendown()
         self.turtle.color(CREAM)  # Cream color
         self.turtle.begin_fill()
@@ -110,34 +115,34 @@ class Ball:
         # Draw the number in the center
         self.turtle.penup()
         self.turtle.goto(
-            self._pos[0] + (BALL_RADIUS * 0.1245), self._pos[1] - (BALL_RADIUS * 0.575))
+            self.x + (BALL_RADIUS * 0.1245), self.y - (BALL_RADIUS * 0.575))
         self.turtle.color("black")
         font_size = int(BALL_RADIUS / 1.4)  # Slightly smaller font size
         self.turtle.write(
-            str(self.__number), align="center", font=("Helvetica", font_size, "bold")
+            str(self.number), align="center", font=("Helvetica", font_size, "bold")
         )
 
     def distance(self, other):
         """Calculate the distance to another ball"""
-        return math.sqrt((other.y - self._pos[1]) ** 2 + (other.x - self._pos[0]) ** 2)
+        return math.sqrt((other.y - self.y) ** 2 + (other.x - self.x) ** 2)
 
     def bounce_off_horizontal(self, canvas_width):
         """Handle collisions with the horizontal edges of the table"""
-        if self._pos[0] - BALL_RADIUS < -canvas_width:
-            self._pos[0] = -canvas_width + BALL_RADIUS
-            self._velocity[0] = -self._velocity[0]
-        elif self._pos[0] + BALL_RADIUS > canvas_width:
-            self._pos[0] = canvas_width - BALL_RADIUS
-            self._velocity[0] = -self._velocity[0]
+        if self.x - BALL_RADIUS < -canvas_width:
+            self.x = -canvas_width + BALL_RADIUS
+            self.vx = -self.vx
+        elif self.x + BALL_RADIUS > canvas_width:
+            self.x = canvas_width - BALL_RADIUS
+            self.vx = -self.vx
 
     def bounce_off_vertical(self, canvas_height):
         """Handle collisions with the vertical edges of the table."""
-        if self._pos[1] - BALL_RADIUS < -canvas_height:
-            self._pos[1] = -canvas_height + BALL_RADIUS
-            self._velocity[1] = -self._velocity[1]
-        elif self._pos[1] + BALL_RADIUS > canvas_height:
-            self._pos[1] = canvas_height - BALL_RADIUS
-            self._velocity[1] = -self._velocity[1]
+        if self.y - BALL_RADIUS < -canvas_height:
+            self.y = -canvas_height + BALL_RADIUS
+            self.vy = -self.vy
+        elif self.y + BALL_RADIUS > canvas_height:
+            self.y = canvas_height - BALL_RADIUS
+            self.vy = -self.vy
 
     def bounce_off(self, other):
         """Handle ball-to-ball collisions with energy preservation."""
@@ -207,23 +212,17 @@ class Ball:
 
     def is_moving(self):
         """Check if the ball is moving."""
-        return self._velocity[0] != 0 or self._velocity[1] != 0
+        return self.vx != 0 or self.vy != 0
 
     def __str__(self):
-        out = f"Ball {self.__number}: Pos=({self._pos[0]:.2f}, {
-            self._pos[1]:.2f})"
-        out += f", Spd=({self._velocity[0]:.2f}, {self._velocity[1]:.2f})"
+        out = f"Ball {self.number}: Pos=({self.x:.2f}, {
+            self.y:.2f})"
+        out += f", Spd=({self.vx:.2f}, {self.vy:.2f})"
         return out
 
 
 class CueBall(Ball):
     """Inheritance class for cue ball"""
-
-    def __init__(self, pos, velocity, info, turtle):
-        """Initialize a cue ball with position, velocity, and color."""
-        super().__init__(pos, velocity, info, turtle)
-        # self.turtle = self.turtle.Turtle()
-
     def draw(self):
         """Draw the cue ball."""
         self.turtle.hideturtle()
@@ -242,11 +241,10 @@ class CueBall(Ball):
 class StripeBall(Ball):
     """Inheritance class for stripe ball"""
 
-    def __init__(self, pos, velocity, info, turtle, stripe_color):
+    def __init__(self, pos, velocity, info, turtle):
         """Initialize a stripe ball with position, velocity, color, and stripe color."""
         super().__init__(pos, velocity, info, turtle)
-        # self.turtle = self.turtle.Turtle()
-        self.__stripe_color = stripe_color
+        self.__stripe_color = info[2]  # Get stripe color from info tuple
 
     def draw(self):
         """Draw the striped ball."""

@@ -1,3 +1,5 @@
+"""Main module for the pool game simulation, handling game logic and visualization."""
+
 import turtle
 import math
 from ball import Ball, CueBall, StripeBall
@@ -25,37 +27,37 @@ class PoolSimulator:
 
     def __init__(self):
         """Initialize the Pool Simulator."""
+        self.turtles = {}  # Consolidate turtle instances into a dictionary
+        self._turtle_setup()
+        self._setup_table()
+        self._setup_balls()
+        self._setup_cuestick()
+        self.game_state = {  # Consolidate game state variables
+            'shot_made': False,
+            'game_won': False
+        }
+
+    def _turtle_setup(self):
         self.screen = turtle.Screen()
         self.screen.tracer(0)
         self.screen.colormode(255)
         self.screen.bgcolor(POOL_TABLE_COLOR)
         self.screen.setup(TABLE_LENGTH + 100, TABLE_WIDTH + 100)
-        self.myturtle = turtle.Turtle()
-        self.myturtle.hideturtle()
-        self.myturtle.speed(0)
 
-        # Initialize turtles for each layer
-        self.table_turtle = turtle.Turtle()
-        self.table_turtle.hideturtle()
-        self.table_turtle.speed(0)
-
-        self.ball_turtle = turtle.Turtle()
-        self.ball_turtle.hideturtle()
-        self.ball_turtle.speed(0)
-
-        self.cuestick_turtle = turtle.Turtle()
-        self.cuestick_turtle.hideturtle()
-        self.cuestick_turtle.speed(0)
-
-        # Set up the table, balls, and cue stick
-        self._setup_table()
-        self._setup_balls()
-        self._setup_cuestick()
-        self.shot_made = False
+        # Store turtles in dictionary
+        self.turtles = {
+            'main': turtle.Turtle(),
+            'table': turtle.Turtle(),
+            'ball': turtle.Turtle(),
+            'cuestick': turtle.Turtle()
+        }
+        for t in self.turtles.values():
+            t.hideturtle()
+            t.speed(0)
 
     def _setup_table(self):
         """Set up the pool table."""
-        self.table = Table(self.table_turtle)
+        self.table = Table(self.turtles['table'])
 
     def _setup_balls(self):
         """Arrange the balls on the pool table."""
@@ -75,16 +77,17 @@ class PoolSimulator:
         # Cue ball
         cue_x, cue_y = CUEBALL_POS
         cueball = CueBall([cue_x, cue_y], [0, 0], [
-                          None, BALL_COLORS[None]], self.ball_turtle)
+                          None, BALL_COLORS[None]], self.turtles['ball'])
         self.ball_list.append(cueball)
 
     def _create_ball(self, x, y, num):
         """Create a Ball & stripe ball."""
-        info = [num, BALL_COLORS[num]]
         if num >= 9:
             stripe_color = BALL_COLORS[num % 8]
-            return StripeBall([x, y], [0, 0], info, self.ball_turtle, stripe_color)
-        return Ball([x, y], [0, 0], info, self.ball_turtle)
+            info = [num, BALL_COLORS[num], stripe_color]  # Include stripe color in info
+            return StripeBall([x, y], [0, 0], info, self.turtles['ball'])
+        info = [num, BALL_COLORS[num]]
+        return Ball([x, y], [0, 0], info, self.turtles['ball'])
 
     def find_ball(self, number):
         """Find a ball by its number."""
@@ -97,31 +100,29 @@ class PoolSimulator:
         """Set up the cue stick in the simulation."""
         cueball = self.find_ball(
             None)  # use cue ball as a ref pos for cuestick
-        self.cuestick = CueStick(cueball, self.cuestick_turtle)
+        self.cuestick = CueStick(cueball, self.turtles['cuestick'])
 
     def input(self):
         """Handle user input for aiming and hitting the cue ball."""
         # Allow user to adjust the aiming angle
         # Listen for keyboard input to control rotation and shooting
         self.screen.listen()
-        # Bind keys for cue stick actions
-        self.screen.onkey(
-            lambda: self.cuestick._rotate(-ANGLE_STEP), "a")  # Rotate left
-        self.screen.onkey(lambda: self.cuestick._rotate(
-            ANGLE_STEP), "d")   # Rotate right
-        self.screen.onkey(lambda: self.cuestick._power(
-            POWER_STEP), "w")   # Increase power
-        # Decrease power
-        self.screen.onkey(lambda: self.cuestick._power(-POWER_STEP), "s")
+        self.screen.listen()
+        self.screen.onkey(lambda: self.cuestick.rotate(-ANGLE_STEP), "a")
+        self.screen.onkey(lambda: self.cuestick.rotate(ANGLE_STEP), "d")
+        self.screen.onkey(lambda: self.cuestick.power(POWER_STEP), "w")
+        self.screen.onkey(lambda: self.cuestick.power(-POWER_STEP), "s")
+        self.screen.onkey(self._attempt_shot, "space")  # Handle space key for shooting
 
-        # Mark the shot as made to exit the loop
-        self.screen.onkey(lambda: self.make_a_shot(),
-                          "space")  # Shoot the cue ball
-        # Main loop for listening
-        while not self.shot_made:  # Keep the screen updated
-            self.screen.update()
-        # Unbind all keys after the shot is made
-        self._unbind_keys()
+    def _attempt_shot(self):
+        """Attempt to make a shot. Ensure it can only be executed once per turn."""
+        if not self.game_state['shot_made']:  # Prevent holding space to repeatedly shoot
+            self.make_a_shot()
+
+    def make_a_shot(self):
+        """Handle the cue stick shot."""
+        self.cuestick.shoot()
+        self.game_state['shot_made'] = True
 
     def _unbind_keys(self):
         """Unbind all keyboard controls for the cue stick."""
@@ -131,21 +132,21 @@ class PoolSimulator:
         self.screen.onkey(None, "s")
         self.screen.onkey(None, "space")
 
-    def make_a_shot(self):
-        """Handle the cue stick shot."""
-        self.cuestick.shoot()
-        self.shot_made = True
-
     def run(self):
         """Main game loop."""
         while True:
-            self._update_game()
-            if self._next_move():
-                if self._is_game_won():
-                    break
-                else:
-                    self.input()
-        self._display_win_message()
+            while not self.game_state['game_won']:  # Stop game loop after the game is won
+                self._update_game()
+                if self._next_move():
+                    if self._is_game_won():
+                        self.game_state['game_won'] = True  # Mark game as won
+                    else:
+                        self.input()
+            self._display_win_message()
+            text = self.screen.textinput("Press enter to continue the game")
+            if text is None:  # User cancelled
+                break
+
 
     def _update_game(self):
         """Update the game state."""
@@ -159,20 +160,14 @@ class PoolSimulator:
     def _redraw(self):
         """Redraw the table, balls, and cue stick."""
         # Redraw table
-        self.table_turtle.clear()
+        self.turtles['table'].clear()
         self.table.draw_table()
-
         # Redraw balls
-        self.ball_turtle.clear()
+        self.turtles['ball'].clear()
         for ball in self.ball_list:
             ball.draw()
-
         # Redraw cue stick
-        if not self.shot_made:
-            self.cuestick._update_position()
-        else:
-            self.cuestick._update_position()
-
+        self.cuestick.update_position()
         # Update screen
         self.screen.update()
 
@@ -183,8 +178,8 @@ class PoolSimulator:
                 return False
 
         # If all balls stop, reset shot state and cue stick
-        if self.shot_made:
-            self.shot_made = False  # Allow the next shot
+        if self.game_state['shot_made']:
+            self.game_state['shot_made'] = False  # Allow the next shot
             self.cuestick.reset()   # Reset the cue stick to follow the cue ball
         return True
 
@@ -240,8 +235,8 @@ class PoolSimulator:
 
     def _display_win_message(self):
         """Display a victory message."""
-        self.myturtle.color("black")
-        self.myturtle.write("Victory!!!!", align="center",
+        self.turtles['main'].color("black")
+        self.turtles['main'].write("Victory!!!!", align="center",
                             font=("Helvetica", 36))
 
     # def play_sound(file_path):

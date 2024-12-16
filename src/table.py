@@ -1,3 +1,5 @@
+"""Module for handling the pool table, including its rendering and pocket detection."""
+
 import math
 from config import (
     POOL_TABLE_CLOTH_COLOR,

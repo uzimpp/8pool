@@ -23,3 +23,6 @@ Pylint is not fully comply due to code performance and readability
 # stripes: 9(yellow stripe),10(blue stripe),11(red stripe),12(purple stripe),
 #          13(orange stripe),14(green stripe),15(brown/maroon stripe)
 # cue: white
+
+
+pylint

@@ -1,3 +1,4 @@
+"""Configuration constants and settings for the pool game simulation."""
 # Simulation Constants
 HZ = 60
 DT = 1 / HZ
@@ -8,7 +9,7 @@ PEN_SIZE = 3
 # Scale: 1 ft = 100 px
 # 1 meter = 30.48 px
 # Table in pixels: 900 px x 450 px
-px_per_m = 30.48
+PX_PER_M = 30.48
 
 # Table Dimensions
 TABLE_LENGTH = 900  # in pixels
@@ -77,8 +78,8 @@ GRAVITY = 9.8
 SLIDING_FRICTION_COEF = 0.2  # Ball-cloth sliding friction
 BALL_BALL_RESTITUTION = 0.95  # Typical for billiard balls
 BALL_MASS = 0.17  # Standard mass for billiard balls in kilograms
-max_speed_m_s = 11.623  # Maximum cue ball speed
-MAX_SPEED_PX_S = max_speed_m_s * px_per_m
+MAX_SPEED_M_S = 11.623  # Maximum cue ball speed
+MAX_SPEED_PX_S = MAX_SPEED_M_S * PX_PER_M
 
 # > Command line
 # spd = float(input("Type the power you want to put into the cue ball (0 - 100): "))
