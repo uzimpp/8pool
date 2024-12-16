@@ -24,7 +24,6 @@ from config import (
 )
 
 
-
 class PoolGame:
     """
     Main class for simulating and controlling the pool game.
@@ -167,7 +166,7 @@ class PoolGame:
     def set_newgame(self):
         """
         Reset the game to its initial state.
-    
+
         Modifies:
             - Reinitializes game objects and states
             - Resets display elements
@@ -331,13 +330,13 @@ class PoolGame:
         if not self.shot_made:
             self.screen.listen()
             self.screen.onkey(lambda:
-                                self.cuestick.rotate(-ANGLE_STEP), "a")
+                              self.cuestick.rotate(-ANGLE_STEP), "a")
             self.screen.onkey(lambda:
-                                self.cuestick.rotate(ANGLE_STEP), "d")
+                              self.cuestick.rotate(ANGLE_STEP), "d")
             self.screen.onkey(lambda:
-                                self.cuestick.power(POWER_STEP), "w")
+                              self.cuestick.power(POWER_STEP), "w")
             self.screen.onkey(lambda:
-                                self.cuestick.power(-POWER_STEP), "s")
+                              self.cuestick.power(-POWER_STEP), "s")
             self.screen.onkey(
                 self._attempt_shot, "space")  # Handle space key for shooting
 
@@ -418,7 +417,8 @@ class PoolGame:
         Modifies:
             self._game_objects: Updates all game object positions and states
         """
-        self._state['game']['physics'].update()  # Use physics engine to handle all physics updates
+        self._state['game']['physics'].update(
+        )  # Use physics engine to handle all physics updates
         self._redraw()
 
     def _redraw(self):
@@ -493,7 +493,7 @@ class PoolGame:
         """
         Display a victory message.
         """
-        self.turtles['main'].goto(0,0)
+        self.turtles['main'].goto(0, 0)
         self.turtles['main'].color("black")
         self.turtles['main'].write(
             "You won!!!",

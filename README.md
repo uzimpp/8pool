@@ -1,8 +1,8 @@
 # Pool Game Simulator
-The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including elastic collisions, friction, and momentum conservation.
-
+![8 Pool Game](https://github.com/uzimpp/final_project_y1-1/blob/main/8%20pool%20game.png)
 ---
 ## Project Description
+The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including elastic collisions, friction, and momentum conservation.
 
 ### Project Sophistication Level
 - **Rating :** `100/100`
