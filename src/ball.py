@@ -245,7 +245,7 @@ class Ball:
     def bounce_off_vertical_rail(self, canvas_height):
         """
         Handle collisions with the vertical edges of the table.
-
+        
         Parameters:
             canvas_height (float): The height of the canvas.
 
@@ -271,6 +271,17 @@ class Ball:
         Modifies:
             self.vx, self.vy: Adjusts velocity based on collision.
             other.vx, other.vy: Adjusts velocity of the other ball.
+        
+        Physics Explanation:
+            The coefficient of restitution (COR or e) is like a "bounciness" factor for collisions.
+            It tells us how much energy is kept after two objects hit each other. A COR of 1
+            means the collision is very bouncy (no energy lost), while 0 means all energy is lost
+            during the collisions.
+
+            In this pool game, I use the COR for calculating the impulse during
+            a collision. Impulse is the change in momentum resulting from the collision,
+            and it is applied to both balls to adjust their loss in velocities.
+            For pool balls, the COR is around 0.96.
         """
         dx = other.x - self.x
         dy = other.y - self.y
@@ -291,7 +302,7 @@ class Ball:
             return
 
         # Compute impulse
-        e = BALL_BALL_RESTITUTION
+        e = BALL_BALL_RESTITUTION # coefficient of restitution (COR or e)
         impulse = -(1 + e) * vn / (1 / self.mass + 1 / other.mass)
 
         # Apply impulse
@@ -311,6 +322,14 @@ class Ball:
         Modifies:
             self.x, self.y: Updates position based on velocity.
             self.vx, self.vy: Updates velocity based on friction.
+        
+        Physics Explanation:
+            The ball's movement is affected by friction, which slows it down over time.
+            Friction is a force that opposes the motion of the ball (F = µmg).
+
+            In this simulation, I use frictional force to adjust the ball's velocity.
+            If the speed drops below a certain level, the ball is considered to have stopped.
+            This is because it would took a while to decelerate when it come to a certain point.
         """
         friction_force = (1 + SLIDING_FRICTION_COEF) * self.mass * GRAVITY
         speed = self._speed()
