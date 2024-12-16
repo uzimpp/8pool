@@ -11,7 +11,28 @@ from config import (
 
 
 class Table:
-    """Represents a pool table with pockets and dimensions."""
+    """
+    Represents a pool table with pockets and dimensions.
+
+    Attributes:
+        + turtle: Turtle object for drawing
+        + pockets: List of pocket positions [(x, y), ...]
+        + pocketed: List of balls that have entered pockets
+
+    Modifies:
+        - Visual representation of table and pockets
+        - List of pocketed balls
+        - Ball positions when checking pocket collisions
+
+    Returns:
+        None directly, but check_pockets returns list of pocketed balls
+
+    Explanation:
+        The table manages:
+        - Drawing the playing surface
+        - Pocket positions and collision detection
+        - Tracking which balls have been pocketed
+    """
 
     def __init__(self, turtle):
         """Initialize the table with dimensions and a dedicated turtle."""
@@ -30,7 +51,12 @@ class Table:
         self.pocketed = []
 
     def draw_table(self):
-        """Draw the table's cloth surface and pockets."""
+        """
+        Draw the table's cloth surface and pockets.
+
+        Modifies:
+            self.turtle: Clears and redraws the entire table surface.
+        """
         self.turtle.clear()
 
         # Draw the table surface
@@ -50,7 +76,9 @@ class Table:
         self.draw_pockets()
 
     def draw_pockets(self):
-        """Draw circular pockets."""
+        """
+        Draw circular pockets.
+        """
         self.turtle.penup()
         self.turtle.color(POOL_TABLE_POCKET_COLOR)
         self.turtle.fillcolor(POOL_TABLE_POCKET_COLOR)
@@ -63,7 +91,25 @@ class Table:
             self.turtle.penup()
 
     def check_pockets(self, balls):
-        """Check if any balls are pocketed."""
+        """
+        Check if any balls are pocketed.
+
+        Parameters:
+            balls (list): List of Ball objects to check for pocketing
+
+        Modifies:
+            self.pocketed: Adds any newly pocketed balls to the list
+
+        Returns:
+            list: Balls that should be removed from play
+
+        Explanation:
+            For each ball, checks its distance to each pocket.
+            If a ball is close enough to a pocket (within adjusted radius),
+            it is considered pocketed and will be removed from play.
+            The adjustment factor makes pocketing slightly easier than
+            the exact pocket diameter.
+        """
         adjust = 15  # Adjust pocket radius for easier detection
         to_remove = []
         for ball in balls:

@@ -20,13 +20,28 @@ class CueStick:
     Represents a cue stick used to strike the cue ball in a pool game.
 
     Attributes:
-        _cueball: Reference to the cue ball object.
-        _angle: Current aiming angle of the cue stick.
-        _offset: Distance between the cue stick and the cue ball.
-        _power: Power of the shot.
-        __shot_position: Last position of the cue stick after shooting.
-        __shot_angle: Angle of the last shot.
-        turtle: Turtle object for drawing the cue stick.
+        # _cue_ball: Reference to the cue ball object
+        # _angle: Current aiming angle of the cue stick [GET] [SET]
+        # _offset: Distance between cue stick and cue ball [GET] [SET]
+        # _pow: Power of the shot (0-100) [GET] [SET]
+        # _shot_position: Last position after shooting [GET]
+        # _shot_angle: Angle of the last shot [GET]
+        + turtle: Turtle object for drawing
+
+    Modifies:
+        - Cue stick's position and orientation
+        - Cue ball's velocity on impact
+        - Visual representation through turtle graphics
+
+    Returns:
+        None directly, but provides properties for accessing state
+
+    Explanation:
+        The cue stick handles:
+        - Aiming through rotation
+        - Power adjustment
+        - Shot animations
+        - Impact physics with the cue ball
     """
 
     def __init__(self, cueball, myturtle):
@@ -37,12 +52,12 @@ class CueStick:
             cueball: The cue ball object.
             myturtle: The turtle object used for drawing.
         """
-        self._cueball = cueball
+        self._cue_ball = cueball
         self._angle = 180  # Initial aiming angle
         self._offset = OFFSET  # Initial distance from the cue ball
-        self._power = 0  # Initial shot power
-        self.__shot_position = None  # Last position after shooting
-        self.__shot_angle = None  # Angle of the last shot
+        self._pow = 0  # Initial shot power
+        self._shot_position = None  # Last position after shooting
+        self._shot_angle = None  # Angle of the last shot
 
         # Turtle setup
         self.turtle = myturtle
@@ -50,9 +65,77 @@ class CueStick:
         self.turtle.speed(0)
         self.turtle.hideturtle()
 
+    @property
+    def pow(self):
+        """
+        Get the current shot power.
+        """
+        return self._pow
+
+    @pow.setter
+    def pow(self, value):
+        """
+        Set the shot power, ensuring it stays within limits.
+        """
+        if 0 <= value <= 100:
+            self._pow = value
+
+    @property
+    def angle(self):
+        """
+        Get the current aiming angle of the cue stick.
+        """
+        return self._angle
+
+    @angle.setter
+    def angle(self, value):
+        """
+        Set the aiming angle, keeping it within 0-360 degrees.
+        """
+        self._angle = value % 360
+
+    @property
+    def offset(self):
+        """
+        Get the current distance between the cue stick and the cue ball.
+        """
+        return self._offset
+
+    @offset.setter
+    def offset(self, value):
+        """
+        Set the offset, ensuring it stays positive.
+        """
+        if value > 0:
+            self._offset = value
+        else:
+            raise ValueError("Offset must be greater than zero.")
+
+    @property
+    def shot_position(self):
+        """
+        Get the last position of the cue stick after shooting.
+        """
+        return self._shot_position
+
+    @property
+    def shot_angle(self):
+        """
+        Get the angle of the last shot.
+        """
+        return self._shot_angle
+
     def draw(self, x, y, angle_rad):
         """
-        Draw the cue stick dynamically, tapering towards the middle.
+        Draw the cue stick on the screen with a dynamic tapering effect.
+
+        Parameters:
+            x (float): The x-coordinate of the cue ball.
+            y (float): The y-coordinate of the cue ball.
+            angle_rad (float): The angle in radians at which the cue stick is drawn.
+
+        Modifies:
+            self.turtle: Updates the visual representation of the cue stick.
         """
         # Define section widths
         widths = {
@@ -153,6 +236,15 @@ class CueStick:
 
         Parameters:
             angle (float): Angle to rotate the cue stick.
+
+        Modifies:
+            self._angle: Updates the cue stick's angle.
+            self.turtle: Redraws the cue stick at new angle.
+
+        Explanation:
+            The rotation is animated smoothly by breaking it into small steps.
+            It uses the shortest path to reach the target angle and updates
+            the screen after each small rotation to create fluid motion.
         """
         target_angle = (self._angle + angle) % 360  # Keep angle within 0-360
 
@@ -174,9 +266,14 @@ class CueStick:
 
         Parameters:
             power (float): Power adjustment value.
+
+        Modifies:
+            self._pow: Updates the shot power.
+            self._offset: Adjusts distance from cue ball.
+            self.turtle: Redraws the cue stick at new position.
         """
-        if 0 <= self._power + power <= 100:
-            self._power += power
+        if 0 <= self.pow + power <= 100:
+            self.pow += power
             self._offset += power / 10
             print(self)
             self.update_position()
@@ -184,77 +281,98 @@ class CueStick:
     def shoot(self):
         """
         Shoot the cue ball and freeze the cue stick's position.
+
+        Modifies:
+            self._shot_position: Saves current position.
+            self._shot_angle: Saves current angle.
+            self._cue_ball.vx, self._cue_ball.vy: Updates cue ball velocity.
+            self.turtle: Animates the shooting motion.
+
+        Returns:
+            None
+
+        Explanation:
+            The shooting process involves three main steps:
+            1. Pull back animation - cue stick moves away from the ball
+            2. Forward stroke animation - cue stick moves toward the ball
+            3. Impact calculation - converts power and angle into ball velocity
+            
+            The shot power determines both the pull-back distance and the final
+            velocity of the cue ball. A power of 0 will result in no shot.
         """
-        if self._power != 0:
-            offset = self._offset  # Save initial offset
-            pull_back_dist = offset * (self._power / 100)  # Scale pull-back with power
+        if self.pow != 0: # Do nothing if there's no power
+            offset = self.offset  # Save initial offset
+            pull_back_dist = offset * (self.pow / 50)  # Scale pull-back with power
+
+            # Animations for pulling back and shooting
             self.pullback_animation(offset, pull_back_dist)
-            self.turtle.getscreen().ontimer(lambda: None, 100) # delay
+            self.turtle.getscreen().ontimer(lambda: None, 50)  # Small delay
             self.shooting_animation(offset, pull_back_dist)
-            # Save state
-            self.__shot_position = [self._cueball.x, self._cueball.y]
-            self.__shot_angle = self._angle
-            # Hit the ball
-            angle_rad = math.radians(self._angle)
-            velocity = (self._power / 100) * MAX_SPEED_PX_S
+
+            # Save shot state
+            self._shot_position = [self._cue_ball.x, self._cue_ball.y]
+            self._shot_angle = self.angle
+
             # Update cue ball velocity
-            self._cueball.vx = -velocity * math.cos(angle_rad)
-            self._cueball.vy = -velocity * math.sin(angle_rad)
-        print(f"Shoot with {self._power}% power, at angle of {self._angle} deg")
+            angle_rad = math.radians(self.angle)
+            velocity = (self.pow / 100) * MAX_SPEED_PX_S
+            self._cue_ball.vx = -velocity * math.cos(angle_rad)
+            self._cue_ball.vy = -velocity * math.sin(angle_rad)
+        print(f"Shoot with {self.pow}% power, at angle of {self._angle} deg")
 
     def shooting_animation(self, offset, pull_back_dist):
         """
-        Animate the cue stick pulling back and then shooting forward.
+        Animate the cue stick moving forward to strike the cue ball.
+
+        Parameters:
+            offset (float): The initial offset of the cue stick from the cue ball.
+            pull_back_dist (float): The distance the cue stick was pulled back.
         """
-        # Forward shooting animation
         i = 0
         while self._offset - BALL_RADIUS - PEN_SIZE > 0:
-            self._offset = offset + pull_back_dist * (1 - i / 25)  # Decrease offset gradually
-            self.update_position()  # Redraw cue stick
+            # Gradually decrease the offset to simulate forward motion
+            self._offset = offset + pull_back_dist * (1 - (i / 20))
+            self.update_position()  # Redraw the cue stick at the new position
             self.turtle.getscreen().update()  # Refresh the screen
-            self.turtle.getscreen().ontimer(lambda: None, 10)  # Small delay for smoothness
+            self.turtle.getscreen().ontimer(lambda: None, 10)  # delay for smoothness
             i += 1
 
     def pullback_animation(self, offset, pull_back_dist):
         """
-        Animate the cue stick pulling back and then shooting forward.
+        Animate the cue stick pulling back before shooting.
+
+        Parameters:
+            offset (float): The initial offset of the cue stick from the cue ball.
+            pull_back_dist (float): The maximum distance the cue stick is pulled back.
         """
-        # Pull-back animation
-        for i in range(125):  # 10 steps for pull-back
+        for i in range(125):  # Incremental animation steps
+            self.offset = offset + (pull_back_dist * (i / 125))
             self.update_position()  # Redraw cue stick
-            self._offset = offset + (pull_back_dist * (i / 125))
             self.turtle.getscreen().update()  # Refresh the screen
-            self.turtle.getscreen().ontimer(lambda: None, 10)
+            self.turtle.getscreen().ontimer(lambda: None, 10)  # Delay for smoothness
 
     def update_position(self):
-        """
-        Update the position of the cue stick dynamically.
-        """
+        """Update the visual position of the cue stick on the screen."""
         self.turtle.clear()
-        if self.__shot_position:
-            x, y = self.__shot_position
-            angle_rad = math.radians(self.__shot_angle)
+        if self._shot_position:
+            x, y = self._shot_position
+            angle_rad = math.radians(self._shot_angle)
         else:
-            x, y = self._cueball.x, self._cueball.y
+            x, y = self._cue_ball.x, self._cue_ball.y
             angle_rad = math.radians(self._angle)
         self.draw(x, y, angle_rad)
 
+
     def reset(self):
-        """
-        Reset the cue stick to follow the cue ball again.
-        """
-        self.__shot_position = None  # Clear static position
-        self.__shot_angle = None  # Clear shot angle
-        self._angle = 270  # Reset angle for aiming
-        self._power = 0  # Reset power for next shot
-        self._offset = OFFSET  # Reset distance
+        """Reset the cue stick to follow the cue ball again."""
+        self._shot_position = None  # Clear static position
+        self._shot_angle = None  # Clear shot angle
+        self.angle = 270  # Reset angle for aiming
+        self.pow = 0  # Reset power for next shot
+        self.offset = OFFSET  # Reset distance
         self.update_position()  # Dynamically follow the cue ball
 
-    def __str__(self):
-        """
-        Return a string representation of the cue stick's current state.
 
-        Returns:
-            str: Current power and angle of the cue stick.
-        """
-        return f"Current power {self._power}, Current angle {self._angle}"
+    def __str__(self):
+        """Return a string representation of the cue stick's current state."""
+        return f"Current power {self.pow}, Current angle {self.angle}"

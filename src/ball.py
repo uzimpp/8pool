@@ -1,4 +1,5 @@
-"""A module containing Ball classes for the pool game simulation"""
+"""Module containing ball classes for the pool game simulation."""
+
 import math
 from config import (
     CREAM,
@@ -14,35 +15,54 @@ from config import (
 
 class Ball:
     """
-    Ball class for simulating the pool game.
+    Base class for all pool balls in the simulation.
 
     Attributes:
-        turtle: The turtle object used for drawing.
-        physics: A dictionary containing the ball's position and velocity.
-        properties: A dictionary containing the ball's number and color.
+        # _physics (dict): Contains position and velocity data
+            - 'pos': [x, y] position coordinates [GET] [SET]
+            - 'velocity': [vx, vy] velocity components [GET] [SET]
+        # _properties (dict): Contains ball characteristics
+            - 'number': Ball number (1-15, None for cue ball) [GET]
+            - 'color': RGB color tuple [GET]
+        + turtle: Turtle object for drawing
+
+    Modifies:
+        - Ball's position and velocity through physics calculations
+        - Visual representation through turtle graphics
+        - Collision responses with other balls and rails
+
+    Returns:
+        None directly, but provides properties for accessing ball state
+
+    Explanation:
+        The ball simulates realistic pool physics including:
+        - Rolling friction on the table cloth
+        - Elastic collisions with other balls
+        - Rail bounces with energy loss
+        - Automatic stopping when speed becomes negligible
     """
+
     def __init__(self, pos, velocity, info, turtle):
         """
-        Initialize a ball with size, position, velocity, color, and number.
+        Initialize a ball with position, velocity, and visual properties.
 
         Parameters:
-            pos (tuple): Initial position of the ball (x, y).
-            velocity (tuple): Initial velocity of the ball (vx, vy).
-            info (tuple): Contains the ball's number and color.
-            turtle (Turtle): The turtle object used for drawing.
+            pos (list): Initial [x, y] position
+            velocity (list): Initial [vx, vy] velocity
+            info (list): Ball properties [number, color]
+            turtle: Turtle graphics object for drawing
 
         Modifies:
-            self.physics: Sets initial position and velocity.
-            self.properties: Sets the ball's number and color.
+            self._physics: Sets initial position and velocity
+            self._properties: Sets ball number and color
+            self.turtle: Configures drawing object
         """
         self.turtle = turtle
-        # Group physics attributes
-        self.physics = {
+        self._physics = {
             'pos': pos,
             'velocity': velocity
         }
-        # Group ball properties
-        self.properties = {
+        self._properties = {
             'number': info[0],
             'color': info[1]
         }
@@ -51,109 +71,76 @@ class Ball:
     def x(self):
         """
         Get the x-coordinate of the ball's position.
-
-        Returns:
-            float: The x-coordinate of the ball's position.
         """
-        return self.physics['pos'][0]
+        return self._physics['pos'][0]
 
     @x.setter
     def x(self, x):
         """
         Set the x-coordinate of the ball's position.
-
-        Modifies:
-            self.physics['pos'][0]: Updates the x-coordinate of the ball's position.
         """
-        self.physics['pos'][0] = x
+        self._physics['pos'][0] = x
 
     @property
     def y(self):
         """
         Get the y-coordinate of the ball's position.
-
-        Returns:
-            float: The y-coordinate of the ball's position.
         """
-        return self.physics['pos'][1]
+        return self._physics['pos'][1]
 
     @y.setter
     def y(self, y):
         """
         Set the y-coordinate of the ball's position.
-
-        Modifies:
-            self.physics['pos'][1]: Updates the y-coordinate of the ball's position.
         """
-        self.physics['pos'][1] = y
+        self._physics['pos'][1] = y
 
     @property
     def vx(self):
         """
         Get the x-component of the ball's velocity.
-
-        Returns:
-            float: The x-component of the ball's velocity.
         """
-        return self.physics['velocity'][0]
+        return self._physics['velocity'][0]
 
     @vx.setter
     def vx(self, vx):
         """
         Set the x-component of the ball's velocity.
-
-        Modifies:
-            self.physics['velocity'][0]: Updates the x-component of the ball's velocity.
         """
-        self.physics['velocity'][0] = vx
+        self._physics['velocity'][0] = vx
 
     @property
     def vy(self):
         """
         Get the y-component of the ball's velocity.
-
-        Returns:
-            float: The y-component of the ball's velocity.
         """
-        return self.physics['velocity'][1]
+        return self._physics['velocity'][1]
 
     @vy.setter
     def vy(self, vy):
         """
         Set the y-component of the ball's velocity.
-
-        Modifies:
-            self.physics['velocity'][1]: Updates the y-component of the ball's velocity.
         """
-        self.physics['velocity'][1] = vy
+        self._physics['velocity'][1] = vy
 
     @property
     def number(self):
         """
         Get the ball's number.
-
-        Returns:
-            int: The number of the ball.
         """
-        return self.properties['number']
+        return self._properties['number']
 
     @property
     def color(self):
         """
         Get the ball's color.
-
-        Returns:
-            str: The color of the ball.
         """
-        return self.properties['color']
+        return self._properties['color']
 
     @property
     def size(self):
         """
         Get the size or radius of the ball.
-
-        Returns:
-            float: The radius of the ball.
         """
         return BALL_RADIUS
 
@@ -161,9 +148,6 @@ class Ball:
     def mass(self):
         """
         Get the mass of the ball.
-
-        Returns:
-            float: The mass of the ball.
         """
         return BALL_MASS
 
@@ -385,10 +369,19 @@ class Ball:
 
 class CueBall(Ball):
     """
-    Inheritance class for cue ball.
+    Special ball class representing the cue ball.
 
     Attributes:
-        Inherits all attributes from Ball.
+        Inherits from Ball:
+            # _physics (dict)
+            # _properties (dict)
+            + turtle
+
+    Explanation:
+        The cue ball is a special ball that:
+        - Is struck directly by the cue stick
+        - Has a simpler visual appearance (no number)
+        - Can be repositioned after being pocketed
     """
 
     def draw(self):
@@ -413,11 +406,21 @@ class CueBall(Ball):
 
 class StripeBall(Ball):
     """
-    Inheritance class for stripe ball.
+    Special ball class representing striped balls (9-15).
 
     Attributes:
-        __stripe_color: The color of the stripe on the ball.
-        Inherits all attributes from Ball.
+        Inherits from Ball:
+            # _physics (dict)
+            # _properties (dict)
+            + turtle
+        - _stripe_color: Color of the stripe pattern
+
+    Explanation:
+        Striped balls have:
+        - A base color (cream)
+        - A colored stripe in the middle
+        - Numbers 9 through 15
+        - More complex drawing routine
     """
 
     def __init__(self, pos, velocity, info, turtle):
@@ -434,7 +437,7 @@ class StripeBall(Ball):
             self.__stripe_color: Sets the stripe color.
         """
         super().__init__(pos, velocity, info, turtle)
-        self.__stripe_color = info[2]  # Get stripe color from info tuple
+        self._stripe_color = info[2]  # Get stripe color from info tuple
 
     def draw(self):
         """
@@ -469,7 +472,7 @@ class StripeBall(Ball):
         self.turtle.penup()
         self.turtle.goto(self.x, self.y - stripe_radius)
         self.turtle.pendown()
-        self.turtle.color(self.__stripe_color, self.__stripe_color)
+        self.turtle.color(self._stripe_color, self._stripe_color)
         self.turtle.begin_fill()
         self.turtle.circle(stripe_radius)
         self.turtle.end_fill()
