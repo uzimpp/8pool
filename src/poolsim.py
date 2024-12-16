@@ -87,6 +87,19 @@ class PoolSimulator:
         self._setup_balls()
         self._setup_cuestick()
 
+    @property
+    def shot_made(self):
+        """Get the current shot made state."""
+        return self._game_state['shot_made']
+
+    @shot_made.setter
+    def shot_made(self, value):
+        """Set the shot made state, ensuring it is a boolean."""
+        if isinstance(value, bool):
+            self._game_state['shot_made'] = value
+        else:
+            raise ValueError("shot_made must be a boolean.")
+
     def _turtle_setup(self):
         """
         Configure the turtle graphics environment.
