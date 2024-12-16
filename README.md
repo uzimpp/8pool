@@ -312,7 +312,6 @@ classDiagram
     PoolGame --> Table : 1 - 1
     PoolGame --> PhysicsEngine : 1 - 1
     PoolGame --> Handler : 1 - 1
-    PoolGame --> GameState : 1 - 1
     Ball <|-- CueBall : Inherits
     Ball <|-- StripeBall : Inherits
 ```
