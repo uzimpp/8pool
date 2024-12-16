@@ -101,8 +101,8 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
    - Friction is applied to simulate the slowing effect of the table cloth, calculated as `F(friction) = μmg`, where `μ` is the friction coefficient, `m` is the ball mass, and `g` is gravity.
 
 2. **Collision Dynamics:**
-   - **Elastic Collisions:** When balls collide, their velocities are updated using the coefficient of restitution (e ≈ 0.96), ensuring energy conservation.
-   - **Rail Bounces:** Balls bounce off table edges with some energy loss, modeled by a lower restitution coefficient for rail collisions.
+   - **Elastic Collisions:** When balls collide, their velocities are updated using the coefficient of restitution `(e ≈ 0.96)`, ensuring energy conservation.
+   - **Rail Bounces:** Balls bounce off table edges with some energy loss, modeled by a lower restitution coefficient for rail collisions. `(e ≈ 0.75)`
 
 3. **Pocket Detection:**
    - Balls are checked for proximity to pockets. If a ball is close enough, it is considered pocketed and removed from play.
