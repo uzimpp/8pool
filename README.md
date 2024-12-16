@@ -67,7 +67,7 @@ cd pool
 
 5. **Run Setup Script:**
 ```bash
-python3 setup.py
+python3 poolgame.py
 ```
 
 ---
