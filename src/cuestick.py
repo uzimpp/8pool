@@ -282,9 +282,6 @@ class CueStick:
             self._physics['cue_ball'].vx, self._physics['cue_ball'].vy: Updates cue ball velocity.
             self.turtle: Animates the shooting motion.
 
-        Returns:
-            None
-
         Explanation:
             The shooting process involves three main steps:
             1. Pull back animation - cue stick moves away from the ball

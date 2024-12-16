@@ -5,20 +5,24 @@ import math
 from ball import Ball, CueBall, StripeBall
 from table import Table
 from cuestick import CueStick
+from handler import Handler
+from physic import PhysicsEngine
 from config import (
     BALL_COLORS,
     BALL_ROWS,
     BALL_DIAMETER,
     CUEBALL_POS,
     POOL_TABLE_COLOR,
-    DT,
     ANGLE_STEP,
     POWER_STEP,
     CANVAS_WIDTH,
     CANVAS_HEIGHT,
     TABLE_LENGTH,
-    TABLE_WIDTH
+    TABLE_WIDTH,
+    GUIDE_LINE_COLOR,
+    PEN_SIZE,
 )
+
 
 
 class PoolGame:
@@ -27,15 +31,15 @@ class PoolGame:
 
     Attributes:
         # _game_objects (dict): Contains game entities
-            - 'table': Table instance
-            - 'cuestick': CueStick instance
-            - 'ball_list': List of Ball instances
+            - 'table': Table instance [GET] [SET]
+            - 'cuestick': CueStick instance [GET] [SET]
+            - 'ball_list': List of Ball instances [GET] [SET]
         # _game_state (dict): Tracks game status
             - 'shot_made': Shot status flag [GET] [SET]
             - 'game_won': Game completion flag [GET] [SET]
         # _display (dict): Manages display elements
-            - 'screen': Main turtle screen
-            - 'turtles': Dictionary of turtle objects
+            - 'screen': Main turtle screen [GET] [SET]
+            - 'turtles': Dictionary of turtle objects [GET] [SET]
 
     Modifies:
         - Game state and object positions
@@ -52,66 +56,172 @@ class PoolGame:
     """
 
     def __init__(self):
-        """
-        Initialize the Pool Simulator with all necessary components.
+        """Initialize the Pool Simulator."""
+        self._state = {
+            'game': {
+                'objects': {
+                    'table': None,
+                    'cuestick': None,
+                    'ball_list': []
+                },
+                'shot_made': False,
+                'game_won': False,
+                'display': {
+                    'screen': turtle.Screen(),
+                    'turtles': {}
+                },
+                'physics': None  # Will hold PhysicsEngine instance
+            }
+        }
+        self._turtle_setup()
+        self._setup_table()
+        self._setup_balls()
+        self._setup_cuestick()
+        self._state['game']['physics'] = PhysicsEngine(
+            self._state['game']['objects'],
+            self._state['game']['display']
+        )
 
-        Modifies:
-            self._game_objects: Creates dictionary for game entities
-                - 'table': Table instance
-                - 'cuestick': CueStick instance
-                - 'ball_list': List of Ball instances
-            self._game_state: Sets up game state tracking
-                - 'shot_made': Shot status flag
-                - 'game_won': Game completion flag
-            self._display: Initializes display components
-                - 'screen': Main turtle screen
-                - 'turtles': Dictionary of turtle objects
-        """
-        # Group all game objects and states into dictionaries
-        self.set_newgame()
+    @property
+    def screen(self):
+        """Get the main turtle screen."""
+        return self._state['game']['display']['screen']
+
+    @screen.setter
+    def screen(self, screen):
+        """Set the screen object."""
+        self._state['game']['display']['screen'] = screen
+
+    @property
+    def turtles(self):
+        """Get the dictionary of turtle objects."""
+        return self._state['game']['display']['turtles']
+
+    @turtles.setter
+    def turtles(self, turtles):
+        """Set the dictionary of turtle objects."""
+        if not isinstance(turtles, dict):
+            raise ValueError("turtles must be a dictionary.")
+        self._state['game']['display']['turtles'] = turtles
+
+    @property
+    def table(self):
+        """Get the table object."""
+        return self._state['game']['objects']['table']
+
+    @table.setter
+    def table(self, table):
+        """Set the table object."""
+        if not isinstance(table, Table):
+            raise ValueError("table must be a Table instance.")
+        self._state['game']['objects']['table'] = table
+
+    @property
+    def ball_list(self):
+        """Get the list of ball objects."""
+        return self._state['game']['objects']['ball_list']
+
+    @ball_list.setter
+    def ball_list(self, ball_list):
+        """Set cue stick."""
+        if not isinstance(ball_list, list):
+            raise ValueError
+        self._state['game']['objects']['ball_list'] = ball_list
+
+    @property
+    def cuestick(self):
+        """Get the cuestick object."""
+        return self._state['game']['objects']['cuestick']
+
+    @cuestick.setter
+    def cuestick(self, cuestick):
+        """Set cue stick."""
+        if not isinstance(cuestick, CueStick):
+            raise ValueError
+        self._state['game']['objects']['cuestick'] = cuestick
+
+    @property
+    def game_won(self):
+        """Get the game won state."""
+        return self._state['game']['game_won']
+
+    @game_won.setter
+    def game_won(self, value):
+        """Set the game won state."""
+        if not isinstance(value, bool):
+            raise ValueError("game_won must be a boolean.")
+        self._state['game']['game_won'] = value
 
     @property
     def shot_made(self):
         """Get the current shot made state."""
-        return self._game_state['shot_made']
+        return self._state['game']['shot_made']
 
     @shot_made.setter
     def shot_made(self, value):
         """Set the shot made state, ensuring it is a boolean."""
-        if isinstance(value, bool):
-            self._game_state['shot_made'] = value
-        else:
+        if not isinstance(value, bool):
             raise ValueError("shot_made must be a boolean.")
+        self._state['game']['shot_made'] = value
+
+    def set_newgame(self):
+        """
+        Reset the game to its initial state.
+    
+        Modifies:
+            - Reinitializes game objects and states
+            - Resets display elements
+        """
+        self._state['game']['objects'] = {
+            'table': None,
+            'cuestick': None,
+            'ball_list': []
+        }
+        self._state['game']['shot_made'] = False
+        self._state['game']['game_won'] = False
+        self._state['game']['display'] = {
+            'screen': turtle.Screen(),
+            'turtles': {}
+        }
+
+        self._turtle_setup()
+        self._setup_table()
+        self._setup_balls()
+        self._setup_cuestick()
+        self._state['game']['physics'] = PhysicsEngine(
+            self._state['game']['objects'],
+            self._state['game']['display']
+        )
 
     def _turtle_setup(self):
         """
         Configure the turtle graphics environment.
 
         Modifies:
-            self._display['screen']: Sets up main display window
+            self.screen: Sets up main display window
                 - tracer: Disabled for manual screen updates
                 - colormode: Set to RGB (255)
                 - bgcolor: Set to table color
                 - setup: Window dimensions adjusted
-            self._display['turtles']: Creates turtle objects
+            self.turtles: Creates turtle objects
                 - 'main': For general messages
                 - 'table': For drawing table
                 - 'ball': For drawing balls
                 - 'cuestick': For drawing cue stick
         """
-        self._display['screen'].tracer(0)
-        self._display['screen'].colormode(255)
-        self._display['screen'].bgcolor(POOL_TABLE_COLOR)
-        self._display['screen'].setup(TABLE_LENGTH + 100, TABLE_WIDTH + 100)
+        self.screen.tracer(0)
+        self.screen.colormode(255)
+        self.screen.bgcolor(POOL_TABLE_COLOR)
+        self.screen.setup(TABLE_LENGTH + 100, TABLE_WIDTH + 100)
 
         # Store turtles in dictionary
-        self._display['turtles'] = {
+        self.turtles = {
             'main': turtle.Turtle(),
             'table': turtle.Turtle(),
             'ball': turtle.Turtle(),
             'cuestick': turtle.Turtle()
         }
-        for t in self._display['turtles'].values():
+        for t in self.turtles.values():
             t.hideturtle()
             t.speed(0)
 
@@ -120,17 +230,17 @@ class PoolGame:
         Set up the pool table.
 
         Modifies:
-            self._game_objects['table']: Creates new Table instance
+            self.table: Creates new Table instance
                 with reference to table turtle
         """
-        self._game_objects['table'] = Table(self._display['turtles']['table'])
+        self.table = Table(self.turtles['table'])
 
     def _setup_balls(self):
         """
         Arrange the balls on the pool table in standard triangle formation.
 
         Modifies:
-            self._game_objects['ball_list']: Adds all balls to the game
+            self.ball_list: Adds all balls to the game
                 - Regular balls (1-8) in triangle formation
                 - Striped balls (9-15) in triangle formation
                 - Cue ball at starting position
@@ -152,15 +262,15 @@ class PoolGame:
             row_y = start_y - row_height / 2
             for num in row:
                 ball = self._create_ball(row_x, row_y, num)
-                self._game_objects['ball_list'].append(ball)
+                self.ball_list.append(ball)
                 row_y += BALL_DIAMETER
             row_x += x_spacing
 
         # Cue ball
         cue_x, cue_y = CUEBALL_POS
         cueball = CueBall([cue_x, cue_y], [0, 0], [
-                          None, BALL_COLORS[None]], self._display['turtles']['ball'])
-        self._game_objects['ball_list'].append(cueball)
+                          None, BALL_COLORS[None]], self.turtles['ball'])
+        self.ball_list.append(cueball)
 
     def _create_ball(self, x, y, num):
         """
@@ -183,37 +293,22 @@ class PoolGame:
             stripe_color = BALL_COLORS[num % 8]
             # Include stripe color in info
             info = [num, BALL_COLORS[num], stripe_color]
-            return StripeBall([x, y], [0, 0], info, self._display['turtles']['ball'])
+            return StripeBall([x, y], [0, 0], info, self.turtles['ball'])
         info = [num, BALL_COLORS[num]]
-        return Ball([x, y], [0, 0], info, self._display['turtles']['ball'])
-
-    def find_ball(self, number):
-        """
-        Find a ball by its number.
-
-        Parameters:
-            number (int): Ball number to find (None for cue ball)
-
-        Returns:
-            Ball or None: The found ball instance or None if not found
-        """
-        for ball in self._game_objects['ball_list']:
-            if ball.number == number:
-                return ball
-        return None
+        return Ball([x, y], [0, 0], info, self.turtles['ball'])
 
     def _setup_cuestick(self):
         """
         Set up the cue stick in the simulation.
 
         Modifies:
-            self._game_objects['cuestick']: Creates new CueStick instance
+            self.cuestick: Creates new CueStick instance
                 with reference to cue ball and cuestick turtle
         """
         cueball = self.find_ball(
             None)  # use cue ball as a ref pos for cuestick
-        self._game_objects['cuestick'] = CueStick(
-            cueball, self._display['turtles']['cuestick'])
+        self.cuestick = CueStick(
+            cueball, self.turtles['cuestick'])
 
     def input(self):
         """
@@ -227,23 +322,24 @@ class PoolGame:
             'space': Execute shot
 
         Modifies:
-            self._game_objects['cuestick']: Updates cue stick properties
+            self.cuestick: Updates cue stick properties
                 - angle: Changed by rotation
                 - power: Changed by power adjustments
         """
         # Allow user to adjust the aiming angle
         # Listen for keyboard input to control rotation and shooting
-        self._display['screen'].listen()
-        self._display['screen'].onkey(lambda:
-                                      self._game_objects['cuestick'].rotate(-ANGLE_STEP), "a")
-        self._display['screen'].onkey(lambda:
-                                      self._game_objects['cuestick'].rotate(ANGLE_STEP), "d")
-        self._display['screen'].onkey(lambda:
-                                      self._game_objects['cuestick'].power(POWER_STEP), "w")
-        self._display['screen'].onkey(lambda:
-                                      self._game_objects['cuestick'].power(-POWER_STEP), "s")
-        self._display['screen'].onkey(
-            self._attempt_shot, "space")  # Handle space key for shooting
+        if not self.shot_made:
+            self.screen.listen()
+            self.screen.onkey(lambda:
+                                self.cuestick.rotate(-ANGLE_STEP), "a")
+            self.screen.onkey(lambda:
+                                self.cuestick.rotate(ANGLE_STEP), "d")
+            self.screen.onkey(lambda:
+                                self.cuestick.power(POWER_STEP), "w")
+            self.screen.onkey(lambda:
+                                self.cuestick.power(-POWER_STEP), "s")
+            self.screen.onkey(
+                self._attempt_shot, "space")  # Handle space key for shooting
 
     def _attempt_shot(self):
         """
@@ -251,7 +347,7 @@ class PoolGame:
         Prevents rapid-fire shooting by checking shot_made flag.
         """
         # Prevent holding space to repeatedly shoot
-        if not self._game_state['shot_made']:
+        if not self.shot_made:
             self.make_a_shot()
 
     def make_a_shot(self):
@@ -259,26 +355,26 @@ class PoolGame:
         Handle the cue stick shot. Executes shooting funnction
         and mark shot as made.
         """
-        self._game_objects['cuestick'].shoot()
-        self._game_state['shot_made'] = True
+        self.cuestick.shoot()
+        self.shot_made = True
 
     def _unbind_keys(self):
         """
         Unbind all keyboard controls for the cue stick.
 
         Modifies:
-            self._display['screen']: Removes all key bindings
+            self.screen: Removes all key bindings
                 - 'a': Left rotation
                 - 'd': Right rotation
                 - 'w': Increase power
                 - 's': Decrease power
                 - 'space': Shoot
         """
-        self._display['screen'].onkey(None, "a")
-        self._display['screen'].onkey(None, "d")
-        self._display['screen'].onkey(None, "w")
-        self._display['screen'].onkey(None, "s")
-        self._display['screen'].onkey(None, "space")
+        self.screen.onkey(None, "a")
+        self.screen.onkey(None, "d")
+        self.screen.onkey(None, "w")
+        self.screen.onkey(None, "s")
+        self.screen.onkey(None, "space")
 
     def run(self):
         """
@@ -294,47 +390,35 @@ class PoolGame:
         Runs until game is won or user quits.
         """
         # Temporary code to simulate game ending for testing
-        # self._game_objects['ball_list'] = [self.find_ball(None)]
+        self.ball_list = [self.find_ball(None)]
         while True:
-            while not self._game_state['game_won']:  # Stop game loop after the game is won
+            # Stop game loop after the game is won
+            while not self.game_won:
                 self._update_game()
                 if self._next_move():
                     if self._is_game_won():
-                        self._game_state['game_won'] = True  # Mark game as won
+                        self.game_won = True  # Mark game as won
                     else:
                         self.input()  # Allow input only when all balls have stopped
-
+                else:
+                    self._unbind_keys()  # Unbind keys if balls are still moving
             # Display the victory message and reset option
             self._display_win_message()
-            text = self._display['screen'].textinput(
+            text = self.screen.textinput(
                 "You won!!!", "Press Enter to play again or Cancel to quit."
             )
             if text is None:  # User cancelled
                 break
-            self.set_newgame() # Reset the game for a new round
+            self.set_newgame()  # Reset the game for a new round
 
     def _update_game(self):
         """
-        Update the game state.
+        Update the game state using physics engine.
 
         Modifies:
-            self._game_objects['ball_list']: Updates all ball positions
-                - Applies physics (movement, friction)
-                - Checks pocket collisions
-                - Checks rail collisions
-                - Checks ball-to-ball collisions
-
-        Explanation:
-            Main physics update loop that:
-            1. Moves all balls according to their velocities
-            2. Checks for and handles all types of collisions
-            3. Updates visual representation
+            self._game_objects: Updates all game object positions and states
         """
-        for ball in self._game_objects['ball_list']:
-            ball.move(DT)
-            self.check_pockets()
-            self.check_table_edge_collisions(ball)
-        self.check_ball_collisions()
+        self._state['game']['physics'].update()  # Use physics engine to handle all physics updates
         self._redraw()
 
     def _redraw(self):
@@ -342,25 +426,30 @@ class PoolGame:
         Redraw the table, balls, and cue stick.
 
         Modifies:
-            self._display['turtles']: Clears and redraws
+            self.turtles: Clears and redraws
                 - 'table': Redraws table and pockets
                 - 'ball': Redraws all balls
                 - 'cuestick': Updates cue stick position
-            self._display['screen']: Updates display
+            self.screen: Updates display
         """
         # Redraw table
-        self._display['turtles']['table'].clear()
-        self._game_objects['table'].draw_table()
+        self.turtles['table'].clear()
+        self.table.draw_table()
 
         # Redraw balls
-        self._display['turtles']['ball'].clear()
-        for ball in self._game_objects['ball_list']:
+        self.turtles['ball'].clear()
+        for ball in self.ball_list:
             ball.draw()
 
+        # Draw guideline
+        if not self.shot_made:
+            self.draw_guide_line()
+
         # Redraw cue stick
-        self._game_objects['cuestick'].update_position()
+        self.cuestick.update_position()
+
         # Update screen
-        self._display['screen'].update()
+        self.screen.update()
 
     def _next_move(self):
         """
@@ -371,114 +460,19 @@ class PoolGame:
 
         Modifies:
             When all balls stop:
-            - self._game_state['shot_made']: Reset to False
-            - self._game_objects['cuestick']: Reset position
+            - self.shot_made: Reset to False
+            - self.cuestick: Reset position
         """
-        for ball in self._game_objects['ball_list']:
+        for ball in self.ball_list:
             if ball.is_moving():
                 return False
 
         # If all balls stop, reset shot state and cue stick
-        if self._game_state['shot_made']:
+        if self.shot_made:
             # Reset the cue stick to follow the cue ball
-            self._game_objects['cuestick'].reset()
-            self._game_state['shot_made'] = False  # Allow the next shot
+            self.cuestick.reset()
+            self.shot_made = False  # Allow the next shot
         return True
-
-    def check_pockets(self):
-        """
-        Check for balls pocketed.
-
-        Modifies:
-            self._game_objects['ball_list']: Removes pocketed balls
-                - Repositions cue ball if pocketed
-                - Removes other balls permanently
-
-        Returns:
-            None, but prints messages about pocketed balls
-        """
-        pocketed_balls = self._game_objects['table'].check_pockets(
-            self._game_objects['ball_list'])
-
-        for ball in pocketed_balls:
-            if isinstance(ball, CueBall):  # Cue ball pocketed
-                self._handle_cue_ball_pocketed(ball)
-                print("Scratch!", "The cue ball has been pocketed!")
-            else:
-                self._game_objects['ball_list'].remove(
-                    ball)  # Remove other balls
-                print(f"Ball {ball.number} is pocketed")
-
-    def _handle_cue_ball_pocketed(self, cueball):
-        """
-        Handle the event when the cue ball is pocketed.
-
-        Parameters:
-            cueball (CueBall): The pocketed cue ball
-
-        Modifies:
-            cueball: Resets cue ball position and velocity
-                - Position: Back to starting position
-                - Velocity: Set to zero
-
-        Explanation:
-            Shows scratch message and resets cue ball for next shot
-        """
-        self._display['screen'].textinput(
-            "Scratch!", "The cue ball has been pocketed! Press Enter to continue."
-        )
-        cueball.x, cueball.y = CUEBALL_POS
-        cueball.vx = 0
-        cueball.vy = 0
-
-    def check_table_edge_collisions(self, ball):
-        """
-        Check and handle collisions with table edges.
-
-        Parameters:
-            ball (Ball): Ball to check for rail collisions
-
-        Modifies:
-            ball: Updates position and velocity on collision
-                - Bounces off horizontal rails
-                - Bounces off vertical rails
-        """
-        ball.bounce_off_horizontal_rail(CANVAS_WIDTH)
-        ball.bounce_off_vertical_rail(CANVAS_HEIGHT)
-
-    def check_ball_collisions(self):
-        """
-        Check and handle collisions between balls.
-
-        Modifies:
-            self._game_objects['ball_list']: For each colliding pair
-                - Updates velocities based on collision physics
-                - Adjusts positions to prevent overlap
-                - Applies coefficient of restitution
-
-        Explanation:
-            Uses elastic collision formulas with:
-            - Conservation of momentum
-            - Conservation of energy
-            - Separation of overlapping balls
-        """
-        n = len(self._game_objects['ball_list'])
-        for i in range(n):
-            for j in range(i + 1, n):
-                ball1 = self._game_objects['ball_list'][i]
-                ball2 = self._game_objects['ball_list'][j]
-                dx = ball2.x - ball1.x
-                dy = ball2.y - ball1.y
-                dist = math.sqrt(dx**2 + dy**2)
-                if dist < (ball1.size + ball2.size):
-                    ball1.bounce_off(ball2)
-                    overlap = (ball1.size + ball2.size) - dist
-                    nx = dx / dist
-                    ny = dy / dist
-                    ball1.x -= nx * (overlap / 2)
-                    ball1.y -= ny * (overlap / 2)
-                    ball2.x += nx * (overlap / 2)
-                    ball2.y += ny * (overlap / 2)
 
     def _is_game_won(self):
         """
@@ -492,46 +486,78 @@ class PoolGame:
             - Only one ball remains
             - That ball is the cue ball
         """
-        is_cueball = isinstance(self._game_objects['ball_list'][0], CueBall)
-        return len(self._game_objects['ball_list']) == 1 and is_cueball
+        is_cueball = isinstance(self.ball_list[0], CueBall)
+        return len(self.ball_list) == 1 and is_cueball
 
     def _display_win_message(self):
         """
         Display a victory message.
         """
-        self._display['turtles']['main'].color("black")
-        self._display['turtles']['main'].write(
+        self.turtles['main'].goto(0,0)
+        self.turtles['main'].color("black")
+        self.turtles['main'].write(
             "You won!!!",
             align="center",
             font=("Helvetica", 36)
         )
 
-    def set_newgame(self):
+    def find_ball(self, number):
         """
-        Reset the game to its initial state.
+        Find a ball by its number.
+
+        Parameters:
+            number (int): Ball number to find (None for cue ball)
+
+        Returns:
+            Ball or None: The found ball instance or None if not found
+        """
+        for ball in self.ball_list:
+            if ball.number == number:
+                return ball
+        return None
+
+    def draw_guide_line(self):
+        """
+        Draw a guideline for the cue stick until it hits a ball or rail.
 
         Modifies:
-            - Reinitializes game objects and states
-            - Resets display elements
+            self.turtles['main']: Draws the guide line on the screen.
         """
-        self._game_objects = {
-            'table': None,
-            'cuestick': None,
-            'ball_list': []
-        }
-        self._game_state = {
-            'shot_made': False,
-            'game_won': False
-        }
-        self._display = {
-            'screen': turtle.Screen(),
-            'turtles': {}
-        }
+        cueball = self.find_ball(None)
+        if not cueball:
+            return
 
-        self._turtle_setup()
-        self._setup_table()
-        self._setup_balls()
-        self._setup_cuestick()
+        # Initialize intersection handler
+        handler = Handler(CANVAS_WIDTH, CANVAS_HEIGHT)
+        # Starting position and direction
+        start_pos = (cueball.x, cueball.y)
+        angle_rad = math.radians(self.cuestick.angle)
+        end_pos = (
+            start_pos[0] - 2000 * math.cos(angle_rad),
+            start_pos[1] - 2000 * math.sin(angle_rad)
+        )
+        # Check for rail intersection
+        end_pos = handler.calculate_rail_intersection(start_pos, end_pos)
+
+        # Check for ball intersection
+        for ball in self.ball_list:
+            if ball.number is not None:
+                ball_intersection = handler.calculate_ball_intersection(
+                    start_pos, end_pos, ball)
+                if ball_intersection:
+                    end_pos = ball_intersection
+                    break
+
+        # Draw the guideline
+        turtle_main = self.turtles['main']
+        turtle_main.clear()
+        turtle_main.color(GUIDE_LINE_COLOR)
+        turtle_main.pensize(PEN_SIZE)
+        turtle_main.penup()
+        turtle_main.goto(*start_pos)
+        turtle_main.pendown()
+        turtle_main.goto(*end_pos)
+        turtle_main.penup()
 
 
 # Run the simulation

@@ -66,7 +66,7 @@ CUESTICK_LENGTH = 320  # Length of the cue stick
 OFFSET = 30  # Initial distance between cue stick tip and cue ball
 POWER_STEP = 10  # Power adjustment step
 ANGLE_STEP = 4  # Angle rotation step (degrees)
-
+GUIDE_LINE_COLOR = (101, 143, 83)
 
 # Physics Configurations
 GRAVITY = 9.8  # Acceleration due to gravity

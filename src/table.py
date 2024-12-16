@@ -16,7 +16,7 @@ class Table:
     Represents a pool table with pockets and dimensions.
 
     Attributes:
-        + turtle: Turtle object for drawing
+        + turtle: Turtle object for drawing 
         + pockets: List of pocket positions [(x, y), ...]
         + pocketed: List of balls that have entered pockets
 
@@ -68,20 +68,17 @@ class Table:
         # Draw the pockets
         self.draw_pockets()
 
-    def draw_rectangle(self, width , height, color):
-        """
-        Draw rectangle shape.
-        Use for drawing table
-        """
+    def draw_rectangle(self, width, height, color):
+        """Draw rectangle shape for table surface."""
         self.turtle.penup()
         self.turtle.goto(-width, -height)
         self.turtle.pendown()
         self.turtle.color(color)
         self.turtle.begin_fill()
         for _ in range(2):
-            self.turtle.forward(2 * (width))
+            self.turtle.forward(2 * width)
             self.turtle.left(90)
-            self.turtle.forward(2 * (height))
+            self.turtle.forward(2 * height)
             self.turtle.left(90)
         self.turtle.end_fill()
 
