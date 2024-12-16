@@ -30,7 +30,7 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 
 2. **Navigate to Project:**
    ```bash
-   cd pool
+   cd poolgame
    ```
 
 3. **Run Setup Script:**
