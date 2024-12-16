@@ -1,49 +1,31 @@
 # Pool Game Simulator
-
-## Project Title
-Physics-Based Pool Game Simulation
-
-## Project Description
 The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including elastic collisions, friction, and momentum conservation.
 
 ---
+## Project Description
 
-### Features
-- Realistic collision dynamics using coefficient of restitution
-- Accurate friction modeling on the pool table cloth
-- Complex intersection calculations for ball and rail collisions
-- Dynamic guide line projection for shot aiming
-- State-driven game flow management
-- Object-oriented design with clear class responsibilities
-- Comprehensive error handling and input validation
-- Smooth animations and visual feedback
+### Project Sophistication Level
+- **Rating :** `100/100`
 
----
-
-## Project Sophistication Level
-- **Rating:** 100/100
-- Includes sophisticated physics simulation with:
+### Features:
   - Realistic collision dynamics using coefficient of restitution
   - Accurate friction modeling on the pool table cloth
-  - Complex guideline intersection calculations for ball and rail collisions
+  - Complex guide line projection calculatiing for ball and rail collisions
   - Dynamic guide line projection for shot aiming
-  - State-driven game flow management
-  - Object-oriented design with clear class responsibilities
-  - Comprehensive error handling and input validation
   - Smooth animations and visual feedback
 
 ---
-
 ## Installation & Setup
 
 ### Prerequisites
-- Python 3.x
-- Turtle graphics (built-in)
+  Ensure you have the following installed:
+- Python 3.8 or higher
+- Required libraries: math, random, turtle, tkinter
 
 ### Steps
 1. **Clone Repository:**
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/uzimpp/final_project_y1-1.git poolgame
    ```
 
 2. **Navigate to Project:**
@@ -51,63 +33,75 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
    cd pool
    ```
 
-3. **Ensure Python and pip are installed:**
-   - **Python:** Make sure Python 3.x is installed on your system. You can download it from [python.org](https://www.python.org/downloads/).
-   - **pip:** If `pip` is not installed, you can install it by downloading `get-pip.py` and running:
-     ```bash
-     python3 get-pip.py
-     ```
-
-4. **Install Required Packages:**
-   - Use `pip` to install any required packages. If there's a `requirements.txt` file, run:
-     ```bash
-     pip install turtle
-     ```
-
-5. **Run Setup Script:**
+3. **Run Setup Script:**
    ```bash
    python3 main.py
    ```
 
----
+### Game Rules
+1. **Basic Rules :**
+   - Strike the cue ball to pocket numbered balls
+   - Win by pocketing all balls except cue ball
+   - Scratch results in cue ball repositioning
+2. **That's all:) :**
 
+---
 ## Controls
-- **A/D:** Rotate cue stick (counter-clockwise/clockwise)
-- **W/S:** Adjust shot power (increase/decrease)
-- **Space:** Execute shot
-- **Enter:** Restart after winning
-- **Cancel:** Quit after winning
+- **A / D :** Rotate cue stick (counter-clockwise/clockwise)
+- **W / S :** Adjust shot power (increase/decrease)
+- ** Space :** Execute shot
+- ** Enter :** Restart after winning
+- ** Cancel :** Quit after winning
 
 *Provide a link to the demo video here.*
 
 ---
-### Technical Highlights
+## Key Interactions
+1. **Shot Execution :**
+   - Player adjusts `CueStick` angle and power
+   - `CueStick` transfers momentum to `CueBall`
+   - `PhysicsEngine` calculates resulting velocities
 
--**Physics Simulation:**
+2. **Collision Handling :**
+   - `PhysicsEngine` detects collisions
+   - `Handler` calculates intersection points
+   - `Ball` objects update their velocities
+
+3. **Game State Management :**
+   - `PoolGame` monitors ball positions and velocities
+   - `Table` checks for pocketed balls
+   - Game state updates based on remaining balls
+
+---
+## Technical Highlights
+
+-**Physics Simulation :**
 - Elastic collision calculations
 - Momentum conservation
 - Friction-based velocity decay
 - Rail bounce energy loss
 
--**Intersection Detection:**
+-**Intersection Detection :**
 - Ray-circle intersection for ball collisions
 - Line-line intersection for rail bounces
 - Guide line projection with multiple obstacles
 
--**State Management:**
+-**State Management :**
 - Clean separation of concerns
 - Event-driven architecture
 - Encapsulated game logic
 - Protected attribute access
 
--**Visual Elements:**
+-**Visual Elements :**
 - Smooth cue stick animations
 - Dynamic guide line updates
 - Realistic ball movement
 - Professional-looking table rendering
 
-### Physics Implementation
-## Physical Properties
+---
+## Physics Implementation
+
+### Physical Properties
 Based on [Dr. Dave's Billiards Physics](https://billiards.colostate.edu/faq/physics/physical-properties/):
 
 ```python
@@ -120,32 +114,32 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
 
 ### Key Physics Concepts
 
-1. **Ball Movement and Friction:**
+1. **Ball Movement and Friction :**
    - Balls move according to their velocity, which is updated every frame.
    - Friction is applied to simulate the slowing effect of the table cloth, calculated as `F(friction) = μmg`, where `μ` is the friction coefficient, `m` is the ball mass, and `g` is gravity.
 
-2. **Impulse and Momentum:**
+2. **Impulse and Momentum :**
    - Impulse is the change in momentum of an object when a force is applied over time. It is calculated as the product of force and time duration: 
 	`J = F \times \Delta t`
    - In the game, impulse is used to determine the change in velocity of balls when struck by the cue stick or during collisions.
 
-3. **Collision Dynamics:**
+3. **Collision Dynamics :**
    - **Elastic Collisions:** When balls collide, their velocities are updated using the coefficient of restitution `(e ≈ 0.96)`, ensuring energy conservation.
    - **Rail Bounces:** Balls bounce off table edges with some energy loss, modeled by a lower restitution coefficient for rail collisions. `(e ≈ 0.75)`
 
-4. **Coefficient of Restitution (COR):**
+4. **Coefficient of Restitution (COR) :**
    - The coefficient of restitution (COR or e) is a measure of how "bouncy" a collision is. It indicates the amount of energy retained after two objects collide. A COR of 1 signifies a perfectly elastic collision with no energy loss, while a COR of 0 indicates a completely inelastic collision where all energy is lost.
    - In this pool game simulation, the COR is used to calculate the impulse during a collision, which is the change in momentum. This impulse is applied to both balls involved in the collision to adjust their velocities. For pool balls, the COR is approximately 0.96, reflecting the slight energy loss typical in real-world pool games.
 
-5. **Pocket Detection:**
+5. **Pocket Detection :**
    - Balls are checked for proximity to pockets. If a ball is close enough, it is considered pocketed and removed from play.
    - The cue ball is repositioned if pocketed, simulating a scratch.
 
-6. **Cue Stick Mechanics:**
+6. **Cue Stick Mechanics :**
    - The cue stick's angle and power are adjustable, affecting the direction and speed of the cue ball.
    - The shot power determines the velocity imparted to the cue ball, with a maximum speed limit to ensure realistic gameplay.
 
-7. **Table Dimensions:**
+7. **Table Dimensions :**
    - Length: 9ft (900px)
    - Width: 4.5ft (450px)
    - Scale: 1ft = 100px
@@ -167,7 +161,6 @@ pool/
 └── display.py     # Display management
 └── README.md
 ```
-
 
 ### Core Components
 - **`PoolGame`:** 
@@ -204,6 +197,7 @@ pool/
     - Ball-to-ball collisions
     - Guide line projections
   - Provides utility functions for collision detection
+
 
 ### UML Class Diagram
 ```mermaid
@@ -327,37 +321,6 @@ classDiagram
     Ball <|-- CueBall : Inherits
     Ball <|-- StripeBall : Inherits
 ```
-
-### Key Interactions
-1. **Shot Execution:**
-   - Player adjusts `CueStick` angle and power
-   - `CueStick` transfers momentum to `CueBall`
-   - `PhysicsEngine` calculates resulting velocities
-
-2. **Collision Handling:**
-   - `PhysicsEngine` detects collisions
-   - `Handler` calculates intersection points
-   - `Ball` objects update their velocities
-
-3. **Game State Management:**
-   - `PoolGame` monitors ball positions and velocities
-   - `Table` checks for pocketed balls
-   - Game state updates based on remaining balls
-
----
-
-## Game Rules
-1. **Basic Rules:**
-   - Strike the cue ball to pocket numbered balls
-   - Win by pocketing all balls except cue ball
-   - Scratch results in cue ball repositioning
-
-2. **Ball Colors:**
-   - Solids: 1-7 (yellow, blue, red, purple, orange, green, brown)
-   - Black: 8
-   - Stripes: 9-15 (matching solid colors)
-   - Cue: White
-
 ---
 
 ## Testing & Quality
@@ -368,6 +331,7 @@ pylint src/*.py
 ```
 
 ### Further Improvements
+---
 
 ## Contributing
 1. Fork repository
