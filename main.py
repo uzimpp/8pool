@@ -390,7 +390,7 @@ class PoolGame:
         Runs until game is won or user quits.
         """
         # Temporary code to simulate game ending for testing
-        self.ball_list = [self.find_ball(None)]
+        # self.ball_list = [self.find_ball(None)]
         while True:
             # Stop game loop after the game is won
             while not self.game_won:
