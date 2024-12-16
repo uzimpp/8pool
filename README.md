@@ -307,13 +307,6 @@ classDiagram
         + calculate_ball_intersection()
     }
 
-    class GameState {
-        + shot_made: bool
-        + game_won: bool
-        + reset()
-        + update_shot_state()
-    }
-
     PoolGame --> Ball : 1 - 15 + 1(cueball)
     PoolGame --> CueStick : 1 - 1
     PoolGame --> Table : 1 - 1
