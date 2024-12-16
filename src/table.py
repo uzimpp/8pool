@@ -4,6 +4,7 @@ import math
 from config import (
     POOL_TABLE_CLOTH_COLOR,
     POOL_TABLE_POCKET_COLOR,
+    POOL_TABLE_COLOR,
     BALL_DIAMETER,
     CANVAS_WIDTH,
     CANVAS_HEIGHT,
@@ -40,7 +41,7 @@ class Table:
         self.turtle.hideturtle()
         self.turtle.speed(0)
         # Define pocket positions
-        self.pockets = [
+        self._pockets = [
             (-CANVAS_WIDTH, CANVAS_HEIGHT),  # Top-left corner
             (CANVAS_WIDTH, CANVAS_HEIGHT),   # Top-right corner
             (-CANVAS_WIDTH, -CANVAS_HEIGHT),  # Bottom-left corner
@@ -58,22 +59,31 @@ class Table:
             self.turtle: Clears and redraws the entire table surface.
         """
         self.turtle.clear()
-
+        # Draw the table
+        self.draw_rectangle(
+            CANVAS_WIDTH * 2, CANVAS_HEIGHT * 2, POOL_TABLE_COLOR)
         # Draw the table surface
-        self.turtle.penup()
-        self.turtle.goto(-CANVAS_WIDTH, -CANVAS_HEIGHT)
-        self.turtle.pendown()
-        self.turtle.color(POOL_TABLE_CLOTH_COLOR)
-        self.turtle.begin_fill()
-        for _ in range(2):
-            self.turtle.forward(2 * (CANVAS_WIDTH))
-            self.turtle.left(90)
-            self.turtle.forward(2 * (CANVAS_HEIGHT))
-            self.turtle.left(90)
-        self.turtle.end_fill()
-
+        self.draw_rectangle(
+            CANVAS_WIDTH, CANVAS_HEIGHT, POOL_TABLE_CLOTH_COLOR)
         # Draw the pockets
         self.draw_pockets()
+
+    def draw_rectangle(self, width , height, color):
+        """
+        Draw rectangle shape.
+        Use for drawing table
+        """
+        self.turtle.penup()
+        self.turtle.goto(-width, -height)
+        self.turtle.pendown()
+        self.turtle.color(color)
+        self.turtle.begin_fill()
+        for _ in range(2):
+            self.turtle.forward(2 * (width))
+            self.turtle.left(90)
+            self.turtle.forward(2 * (height))
+            self.turtle.left(90)
+        self.turtle.end_fill()
 
     def draw_pockets(self):
         """
@@ -82,7 +92,7 @@ class Table:
         self.turtle.penup()
         self.turtle.color(POOL_TABLE_POCKET_COLOR)
         self.turtle.fillcolor(POOL_TABLE_POCKET_COLOR)
-        for px, py in self.pockets:
+        for px, py in self._pockets:
             self.turtle.goto(px, py - BALL_DIAMETER)
             self.turtle.pendown()
             self.turtle.begin_fill()
@@ -113,7 +123,7 @@ class Table:
         adjust = 15  # Adjust pocket radius for easier detection
         to_remove = []
         for ball in balls:
-            for px, py in self.pockets:
+            for px, py in self._pockets:
                 dist = math.sqrt((ball.x - px) ** 2 + (ball.y - py) ** 2)
                 if dist + ball.size - adjust < BALL_DIAMETER:  # Check pocket
                     to_remove.append(ball)

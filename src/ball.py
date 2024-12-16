@@ -229,7 +229,7 @@ class Ball:
     def bounce_off_vertical_rail(self, canvas_height):
         """
         Handle collisions with the vertical edges of the table.
-        
+
         Parameters:
             canvas_height (float): The height of the canvas.
 
@@ -255,7 +255,7 @@ class Ball:
         Modifies:
             self.vx, self.vy: Adjusts velocity based on collision.
             other.vx, other.vy: Adjusts velocity of the other ball.
-        
+
         Physics Explanation:
             The coefficient of restitution (COR or e) is like a "bounciness" factor for collisions.
             It tells us how much energy is kept after two objects hit each other. A COR of 1
@@ -286,7 +286,7 @@ class Ball:
             return
 
         # Compute impulse
-        e = BALL_BALL_RESTITUTION # coefficient of restitution (COR or e)
+        e = BALL_BALL_RESTITUTION  # coefficient of restitution (COR or e)
         impulse = -(1 + e) * vn / (1 / self.mass + 1 / other.mass)
 
         # Apply impulse
@@ -306,7 +306,7 @@ class Ball:
         Modifies:
             self.x, self.y: Updates position based on velocity.
             self.vx, self.vy: Updates velocity based on friction.
-        
+
         Physics Explanation:
             The ball's movement is affected by friction, which slows it down over time.
             Friction is a force that opposes the motion of the ball (F = µmg).

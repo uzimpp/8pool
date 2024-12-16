@@ -21,7 +21,7 @@ from config import (
 )
 
 
-class PoolSimulator:
+class PoolGame:
     """
     Main class for simulating and controlling the pool game.
 
@@ -68,24 +68,7 @@ class PoolSimulator:
                 - 'turtles': Dictionary of turtle objects
         """
         # Group all game objects and states into dictionaries
-        self._game_objects = {
-            'table': None,
-            'cuestick': None,
-            'ball_list': []
-        }
-        self._game_state = {
-            'shot_made': False,
-            'game_won': False
-        }
-        self._display = {
-            'screen': turtle.Screen(),
-            'turtles': {}
-        }
-
-        self._turtle_setup()
-        self._setup_table()
-        self._setup_balls()
-        self._setup_cuestick()
+        self.set_newgame()
 
     @property
     def shot_made(self):
@@ -198,7 +181,8 @@ class PoolSimulator:
         """
         if num >= 9:
             stripe_color = BALL_COLORS[num % 8]
-            info = [num, BALL_COLORS[num], stripe_color]  # Include stripe color in info
+            # Include stripe color in info
+            info = [num, BALL_COLORS[num], stripe_color]
             return StripeBall([x, y], [0, 0], info, self._display['turtles']['ball'])
         info = [num, BALL_COLORS[num]]
         return Ball([x, y], [0, 0], info, self._display['turtles']['ball'])
@@ -228,7 +212,8 @@ class PoolSimulator:
         """
         cueball = self.find_ball(
             None)  # use cue ball as a ref pos for cuestick
-        self._game_objects['cuestick'] = CueStick(cueball, self._display['turtles']['cuestick'])
+        self._game_objects['cuestick'] = CueStick(
+            cueball, self._display['turtles']['cuestick'])
 
     def input(self):
         """
@@ -250,35 +235,29 @@ class PoolSimulator:
         # Listen for keyboard input to control rotation and shooting
         self._display['screen'].listen()
         self._display['screen'].onkey(lambda:
-        self._game_objects['cuestick'].rotate(-ANGLE_STEP), "a")
+                                      self._game_objects['cuestick'].rotate(-ANGLE_STEP), "a")
         self._display['screen'].onkey(lambda:
-        self._game_objects['cuestick'].rotate(ANGLE_STEP), "d")
+                                      self._game_objects['cuestick'].rotate(ANGLE_STEP), "d")
         self._display['screen'].onkey(lambda:
-        self._game_objects['cuestick'].power(POWER_STEP), "w")
+                                      self._game_objects['cuestick'].power(POWER_STEP), "w")
         self._display['screen'].onkey(lambda:
-        self._game_objects['cuestick'].power(-POWER_STEP), "s")
-        self._display['screen'].onkey(self._attempt_shot, "space")  # Handle space key for shooting
+                                      self._game_objects['cuestick'].power(-POWER_STEP), "s")
+        self._display['screen'].onkey(
+            self._attempt_shot, "space")  # Handle space key for shooting
 
     def _attempt_shot(self):
         """
         Attempt to make a shot. Ensure it can only be executed once per turn.
-
-        Modifies:
-            self._game_state['shot_made']: Set to True if shot is made
-
-        Explanation:
-            Prevents rapid-fire shooting by checking shot_made flag
+        Prevents rapid-fire shooting by checking shot_made flag.
         """
-        if not self._game_state['shot_made']:  # Prevent holding space to repeatedly shoot
+        # Prevent holding space to repeatedly shoot
+        if not self._game_state['shot_made']:
             self.make_a_shot()
 
     def make_a_shot(self):
         """
-        Handle the cue stick shot.
-
-        Modifies:
-            self._game_objects['cuestick']: Executes shooting animation
-            self._game_state['shot_made']: Marks shot as made
+        Handle the cue stick shot. Executes shooting funnction
+        and mark shot as made.
         """
         self._game_objects['cuestick'].shoot()
         self._game_state['shot_made'] = True
@@ -312,13 +291,10 @@ class PoolSimulator:
             4. Check for game completion
             5. Display victory message when won
 
-        Modifies:
-            self._game_state: Updates game progress
-            self._game_objects: Updates all game entities
-
-        Returns:
-            None, but runs until game is won or user quits
+        Runs until game is won or user quits.
         """
+        # Temporary code to simulate game ending for testing
+        # self._game_objects['ball_list'] = [self.find_ball(None)]
         while True:
             while not self._game_state['game_won']:  # Stop game loop after the game is won
                 self._update_game()
@@ -327,13 +303,15 @@ class PoolSimulator:
                         self._game_state['game_won'] = True  # Mark game as won
                     else:
                         self.input()  # Allow input only when all balls have stopped
-                else:
-                    self._unbind_keys()  # Unbind keys if balls are still moving
+
+            # Display the victory message and reset option
             self._display_win_message()
             text = self._display['screen'].textinput(
-                "Game Over", "Press enter to continue the game")
+                "You won!!!", "Press Enter to play again or Cancel to quit."
+            )
             if text is None:  # User cancelled
                 break
+            self.set_newgame() # Reset the game for a new round
 
     def _update_game(self):
         """
@@ -373,10 +351,12 @@ class PoolSimulator:
         # Redraw table
         self._display['turtles']['table'].clear()
         self._game_objects['table'].draw_table()
+
         # Redraw balls
         self._display['turtles']['ball'].clear()
         for ball in self._game_objects['ball_list']:
             ball.draw()
+
         # Redraw cue stick
         self._game_objects['cuestick'].update_position()
         # Update screen
@@ -400,8 +380,9 @@ class PoolSimulator:
 
         # If all balls stop, reset shot state and cue stick
         if self._game_state['shot_made']:
+            # Reset the cue stick to follow the cue ball
+            self._game_objects['cuestick'].reset()
             self._game_state['shot_made'] = False  # Allow the next shot
-            self._game_objects['cuestick'].reset()   # Reset the cue stick to follow the cue ball
         return True
 
     def check_pockets(self):
@@ -416,13 +397,16 @@ class PoolSimulator:
         Returns:
             None, but prints messages about pocketed balls
         """
-        pocketed_balls = self._game_objects['table'].check_pockets(self._game_objects['ball_list'])
+        pocketed_balls = self._game_objects['table'].check_pockets(
+            self._game_objects['ball_list'])
+
         for ball in pocketed_balls:
             if isinstance(ball, CueBall):  # Cue ball pocketed
                 self._handle_cue_ball_pocketed(ball)
                 print("Scratch!", "The cue ball has been pocketed!")
             else:
-                self._game_objects['ball_list'].remove(ball)  # Remove other balls
+                self._game_objects['ball_list'].remove(
+                    ball)  # Remove other balls
                 print(f"Ball {ball.number} is pocketed")
 
     def _handle_cue_ball_pocketed(self, cueball):
@@ -433,7 +417,7 @@ class PoolSimulator:
             cueball (CueBall): The pocketed cue ball
 
         Modifies:
-            cueball: Resets position and velocity
+            cueball: Resets cue ball position and velocity
                 - Position: Back to starting position
                 - Velocity: Set to zero
 
@@ -514,22 +498,43 @@ class PoolSimulator:
     def _display_win_message(self):
         """
         Display a victory message.
-
-        Modifies:
-            self._display['turtles']['main']: Writes victory message
-                - Color: Black
-                - Text: "Victory!!!!"
-                - Font: Helvetica 36
-                - Alignment: Center
         """
         self._display['turtles']['main'].color("black")
         self._display['turtles']['main'].write(
-            "Victory!!!!", 
+            "You won!!!",
             align="center",
             font=("Helvetica", 36)
         )
 
+    def set_newgame(self):
+        """
+        Reset the game to its initial state.
+
+        Modifies:
+            - Reinitializes game objects and states
+            - Resets display elements
+        """
+        self._game_objects = {
+            'table': None,
+            'cuestick': None,
+            'ball_list': []
+        }
+        self._game_state = {
+            'shot_made': False,
+            'game_won': False
+        }
+        self._display = {
+            'screen': turtle.Screen(),
+            'turtles': {}
+        }
+
+        self._turtle_setup()
+        self._setup_table()
+        self._setup_balls()
+        self._setup_cuestick()
+
+
 # Run the simulation
 if __name__ == "__main__":
-    sim = PoolSimulator()
+    sim = PoolGame()
     sim.run()
