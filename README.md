@@ -3,13 +3,20 @@
 ## Project Title
 Physics-Based Pool Game Simulation
 
-## Description
-A realistic pool game simulator implementing accurate physics for ball collisions, friction, and cue stick mechanics. Built with Python and Turtle graphics, it offers an engaging experience with realistic ball movements and game rules.
+## Project Description
+The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including elastic collisions, friction, and momentum conservation.
 
 ---
 
-## Overview
-The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including elastic collisions, friction, and momentum conservation.
+### Features
+- Realistic collision dynamics using coefficient of restitution
+- Accurate friction modeling on the pool table cloth
+- Complex intersection calculations for ball and rail collisions
+- Dynamic guide line projection for shot aiming
+- State-driven game flow management
+- Object-oriented design with clear class responsibilities
+- Comprehensive error handling and input validation
+- Smooth animations and visual feedback
 
 ---
 
@@ -18,61 +25,12 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 - Includes sophisticated physics simulation with:
   - Realistic collision dynamics using coefficient of restitution
   - Accurate friction modeling on the pool table cloth
-  - Complex intersection calculations for ball and rail collisions
+  - Complex guideline intersection calculations for ball and rail collisions
   - Dynamic guide line projection for shot aiming
   - State-driven game flow management
   - Object-oriented design with clear class responsibilities
   - Comprehensive error handling and input validation
   - Smooth animations and visual feedback
-
----
-
-## Technical Highlights
-
-### Physics Implementation
-- Elastic collision calculations
-- Momentum conservation
-- Friction-based velocity decay
-- Rail bounce energy loss
-
-### Intersection Detection
-- Ray-circle intersection for ball collisions
-- Line-line intersection for rail bounces
-- Guide line projection with multiple obstacles
-
-### State Management
-- Clean separation of concerns
-- Event-driven architecture
-- Encapsulated game logic
-- Protected attribute access
-
-### Visual Elements
-- Smooth cue stick animations
-- Dynamic guide line updates
-- Realistic ball movement
-- Professional-looking table rendering
-
----
-
-## Features
-
-### Core Mechanics
-- **Physics Simulation:**
-  - Elastic collisions between balls
-  - Rail bounces with energy loss
-  - Rolling friction on cloth
-  - Realistic cue ball mechanics
-
-### Game Elements
-- **Player Control:**
-  - Intuitive cue stick aiming
-  - Power adjustment system
-  - Shot preview guidelines
-- **Visual Elements:**
-  - Realistic pool table rendering
-  - Numbered and striped balls
-  - Dynamic cue stick visualization
-  - Smooth animations
 
 ---
 
@@ -103,12 +61,12 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 4. **Install Required Packages:**
    - Use `pip` to install any required packages. If there's a `requirements.txt` file, run:
      ```bash
-     pip install -r requirements.txt
+     pip install turtle
      ```
 
 5. **Run Setup Script:**
    ```bash
-   python3 poolgame.py
+   python3 main.py
    ```
 
 ---
@@ -120,11 +78,36 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 - **Enter:** Restart after winning
 - **Cancel:** Quit after winning
 
+*Provide a link to the demo video here.*
+
 ---
+### Technical Highlights
 
-## Physics Implementation
+-**Physics Simulation:**
+- Elastic collision calculations
+- Momentum conservation
+- Friction-based velocity decay
+- Rail bounce energy loss
 
-### Physical Properties
+-**Intersection Detection:**
+- Ray-circle intersection for ball collisions
+- Line-line intersection for rail bounces
+- Guide line projection with multiple obstacles
+
+-**State Management:**
+- Clean separation of concerns
+- Event-driven architecture
+- Encapsulated game logic
+- Protected attribute access
+
+-**Visual Elements:**
+- Smooth cue stick animations
+- Dynamic guide line updates
+- Realistic ball movement
+- Professional-looking table rendering
+
+### Physics Implementation
+## Physical Properties
 Based on [Dr. Dave's Billiards Physics](https://billiards.colostate.edu/faq/physics/physical-properties/):
 
 ```python
@@ -143,9 +126,7 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
 
 2. **Impulse and Momentum:**
    - Impulse is the change in momentum of an object when a force is applied over time. It is calculated as the product of force and time duration: 
-     \[
-     J = F \times \Delta t
-     \]
+	`J = F \times \Delta t`
    - In the game, impulse is used to determine the change in velocity of balls when struck by the cue stick or during collisions.
 
 3. **Collision Dynamics:**
@@ -172,6 +153,21 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
 ---
 
 ## Project Architecture
+
+### File Structure
+```
+pool/
+├── main.py    # Main controller
+├── ball.py        # Ball physics
+├── cuestick.py    # Cue mechanics
+├── table.py       # Table handling
+├── physic.py      # Physics engine
+├── handler.py     # Collision detection
+├── config.py      # Constants
+└── display.py     # Display management
+└── README.md
+```
+
 
 ### Core Components
 - **`PoolGame`:** 
@@ -371,27 +367,7 @@ classDiagram
 pylint src/*.py
 ```
 
-### Known Issues
-- [List any known bugs or limitations]
-
----
-
-## Project Structure
-```
-pool/
-├── src/
-│   ├─ poolgame.py    # Main controller
-│   ├── ball.py        # Ball physics
-│   ├── cuestick.py    # Cue mechanics
-│   ├── table.py       # Table handling
-│   ├── physic.py      # Physics engine
-│   ├── handler.py     # Collision detection
-│   ├── config.py      # Constants
-│   └── display.py     # Display management
-└── README.md
-```
-
----
+### Further Improvements
 
 ## Contributing
 1. Fork repository
