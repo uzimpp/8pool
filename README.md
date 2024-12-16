@@ -2,7 +2,7 @@
 ![8 Pool Game](https://github.com/uzimpp/final_project_y1-1/blob/main/8%20pool%20game.png)
 ---
 ## Project Description
-The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including elastic collisions, friction, and momentum conservation.
+The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including inelastic collisions, friction, and momentum conservation.
 
 ### Project Sophistication Level
 - **Rating :** `100/100`
@@ -76,7 +76,7 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 ## Technical Highlights
 
 -**Physics Simulation :**
-- Elastic collision calculations
+- Inelastic collision calculations
 - Momentum conservation
 - Friction-based velocity decay
 - Rail bounce energy loss
@@ -124,7 +124,7 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
    - In the game, impulse is used to determine the change in velocity of balls when struck by the cue stick or during collisions.
 
 3. **Collision Dynamics :**
-   - **Elastic Collisions:** When balls collide, their velocities are updated using the coefficient of restitution `(e ≈ 0.96)`, ensuring energy conservation.
+   - **Inelastic Collisions:** When balls collide, their velocities are updated using the coefficient of restitution `(e ≈ 0.96)`, ensuring energy conservation.
    - **Rail Bounces:** Balls bounce off table edges with some energy loss, modeled by a lower restitution coefficient for rail collisions. `(e ≈ 0.75)`
 
 4. **Coefficient of Restitution (COR) :**
