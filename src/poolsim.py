@@ -141,9 +141,11 @@ class PoolSimulator:
                     if self._is_game_won():
                         self.game_state['game_won'] = True  # Mark game as won
                     else:
-                        self.input()
+                        self.input()  # Allow input only when all balls have stopped
+                else:
+                    self._unbind_keys()  # Unbind keys if balls are still moving
             self._display_win_message()
-            text = self.screen.textinput("Press enter to continue the game")
+            text = self.screen.textinput("Game Over", "Press enter to continue the game")
             if text is None:  # User cancelled
                 break
 
@@ -206,8 +208,8 @@ class PoolSimulator:
 
     def check_table_edge_collisions(self, ball):
         """Check and handle collisions with table edges."""
-        ball.bounce_off_horizontal(CANVAS_WIDTH)
-        ball.bounce_off_vertical(CANVAS_HEIGHT)
+        ball.bounce_off_horizontal_rail(CANVAS_WIDTH)
+        ball.bounce_off_vertical_rail(CANVAS_HEIGHT)
 
     def check_ball_collisions(self):
         """Check and handle collisions between balls."""

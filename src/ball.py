@@ -1,4 +1,4 @@
-"""Module containing Ball classes for the pool game simulation."""
+"""A module containing Ball classes for the pool game simulation"""
 import math
 from config import (
     CREAM,
@@ -7,8 +7,9 @@ from config import (
     GRAVITY,
     SLIDING_FRICTION_COEF,
     BALL_BALL_RESTITUTION,
+    BALL_RAIL_RESTITUTION,
+    MIN_SPEED_PX_S,
 )
-# from playsound import playsound
 
 
 class Ball:
@@ -17,11 +18,13 @@ class Ball:
     def __init__(self, pos, velocity, info, turtle):
         """Initialize a ball with size, position, velocity, color, and number."""
         self.turtle = turtle
-        self.physics = {  # Group physics-related attributes
+        # Group physics attributes
+        self.physics = {
             'pos': pos,
             'velocity': velocity
         }
-        self.properties = {  # Group ball properties
+        # Group ball properties
+        self.properties = {
             'number': info[0],
             'color': info[1]
         }
@@ -115,34 +118,42 @@ class Ball:
         # Draw the number in the center
         self.turtle.penup()
         self.turtle.goto(
-            self.x + (BALL_RADIUS * 0.1245), self.y - (BALL_RADIUS * 0.575))
+            self.x + (BALL_RADIUS * 0.1245),
+            self.y - (BALL_RADIUS * 0.575)
+        )
         self.turtle.color("black")
         font_size = int(BALL_RADIUS / 1.4)  # Slightly smaller font size
         self.turtle.write(
-            str(self.number), align="center", font=("Helvetica", font_size, "bold")
+            str(self.number),
+            align="center",
+            font=("Helvetica",
+                  font_size,
+                  "bold")
         )
 
     def distance(self, other):
         """Calculate the distance to another ball"""
         return math.sqrt((other.y - self.y) ** 2 + (other.x - self.x) ** 2)
 
-    def bounce_off_horizontal(self, canvas_width):
+    def bounce_off_horizontal_rail(self, canvas_width):
         """Handle collisions with the horizontal edges of the table"""
+        # Apply COR between ball and rail
         if self.x - BALL_RADIUS < -canvas_width:
             self.x = -canvas_width + BALL_RADIUS
-            self.vx = -self.vx
+            self.vx = -BALL_RAIL_RESTITUTION * self.vx
         elif self.x + BALL_RADIUS > canvas_width:
             self.x = canvas_width - BALL_RADIUS
-            self.vx = -self.vx
+            self.vx = -BALL_RAIL_RESTITUTION * self.vx
 
-    def bounce_off_vertical(self, canvas_height):
+    def bounce_off_vertical_rail(self, canvas_height):
         """Handle collisions with the vertical edges of the table."""
+        # Apply COR between ball and rail
         if self.y - BALL_RADIUS < -canvas_height:
             self.y = -canvas_height + BALL_RADIUS
-            self.vy = -self.vy
+            self.vy = -BALL_RAIL_RESTITUTION * self.vy
         elif self.y + BALL_RADIUS > canvas_height:
             self.y = canvas_height - BALL_RADIUS
-            self.vy = -self.vy
+            self.vy = -BALL_RAIL_RESTITUTION * self.vy
 
     def bounce_off(self, other):
         """Handle ball-to-ball collisions with energy preservation."""
@@ -177,35 +188,27 @@ class Ball:
 
     def move(self, dt):
         """Update the ball's position and velocity with friction."""
-        # F(friction) = µmg
         friction_force = (1 + SLIDING_FRICTION_COEF) * self.mass * GRAVITY
         speed = self._speed()
-        # Calculate speed (Apply Newton's second law)
-        # Acceleration due to friction in opposite direction
-        # ∑F = ma
-        # We will get Fsin(ø) = ma
         if speed > 0:
+            # Calculate direction
             dx = self.vx / speed
             dy = self.vy / speed
-
-            # Friction forces
+            # Calculate frictional acceleration
             ax = -friction_force / self.mass * dx
             ay = -friction_force / self.mass * dy
-
             # Update velocities
             self.vx += ax * dt
             self.vy += ay * dt
-        else:
-            ax, ay = 0, 0
+            # Stop ball if velocity falls below threshold
+            if self._speed() < MIN_SPEED_PX_S:
+                self.vx, self.vy = 0, 0
+        else:  # Ball is not moving at the first place
+            self.vx, self.vy = 0, 0
+
         # Update position
         self.x += self.vx * dt
         self.y += self.vy * dt
-        # Stop ball if slow enough
-        min_speed = 0.3
-        speed = self._speed()
-        if speed < min_speed:
-            self.vx = 0
-            self.vy = 0
 
     def _speed(self):
         return math.sqrt(self.vx**2 + self.vy**2)
@@ -215,14 +218,14 @@ class Ball:
         return self.vx != 0 or self.vy != 0
 
     def __str__(self):
-        out = f"Ball {self.number}: Pos=({self.x:.2f}, {
-            self.y:.2f})"
+        out = f"Ball {self.number}: Pos=({self.x:.2f}, {self.y:.2f})"
         out += f", Spd=({self.vx:.2f}, {self.vy:.2f})"
         return out
 
 
 class CueBall(Ball):
     """Inheritance class for cue ball"""
+
     def draw(self):
         """Draw the cue ball."""
         self.turtle.hideturtle()

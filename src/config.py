@@ -76,11 +76,12 @@ ANGLE_STEP = 6                           # Angle rotation step (degrees)
 # Physics Configurations
 GRAVITY = 9.8
 SLIDING_FRICTION_COEF = 0.2  # Ball-cloth sliding friction
-BALL_BALL_RESTITUTION = 0.95  # Typical for billiard balls
+BALL_BALL_RESTITUTION = 0.96  # Typical for billiard balls
+BALL_RAIL_RESTITUTION = 0.75
 BALL_MASS = 0.17  # Standard mass for billiard balls in kilograms
 MAX_SPEED_M_S = 11.623  # Maximum cue ball speed
 MAX_SPEED_PX_S = MAX_SPEED_M_S * PX_PER_M
-
+MIN_SPEED_PX_S = 0.1
 # > Command line
 # spd = float(input("Type the power you want to put into the cue ball (0 - 100): "))
 # angle_deg = float(input("Type your angle to hit (in degrees, 0°=to the right, 90°=up): "))
