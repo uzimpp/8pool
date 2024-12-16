@@ -52,10 +52,22 @@ git clone [repository-url]
 cd pool
 ```
 
-3. **Run Setup Script:**
+3. **Ensure Python and pip are installed:**
+   - **Python:** Make sure Python 3.x is installed on your system. You can download it from [python.org](https://www.python.org/downloads/).
+   - **pip:** If `pip` is not installed, you can install it by downloading `get-pip.py` and running:
+   ```bash
+   python3 get-pip.py
+   ```
+
+4. **Install Required Packages:**
+   - Use `pip` to install any required packages. If there's a `requirements.txt` file, run:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Run Setup Script:**
 ```bash
-chmod +x setup_and_run.sh
-./setup_and_run.sh
+python3 setup.py
 ```
 
 ---
