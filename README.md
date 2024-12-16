@@ -100,19 +100,30 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
    - Balls move according to their velocity, which is updated every frame.
    - Friction is applied to simulate the slowing effect of the table cloth, calculated as `F(friction) = μmg`, where `μ` is the friction coefficient, `m` is the ball mass, and `g` is gravity.
 
-2. **Collision Dynamics:**
+2. **Impulse and Momentum:**
+   - Impulse is the change in momentum of an object when a force is applied over time. It is calculated as the product of force and time duration: 
+     \[
+     J = F \times \Delta t
+     \]
+   - In the game, impulse is used to determine the change in velocity of balls when struck by the cue stick or during collisions.
+
+3. **Collision Dynamics:**
    - **Elastic Collisions:** When balls collide, their velocities are updated using the coefficient of restitution `(e ≈ 0.96)`, ensuring energy conservation.
    - **Rail Bounces:** Balls bounce off table edges with some energy loss, modeled by a lower restitution coefficient for rail collisions. `(e ≈ 0.75)`
 
-3. **Pocket Detection:**
+4. **Coefficient of Restitution (COR):**
+   - The coefficient of restitution (COR or e) is a measure of how "bouncy" a collision is. It indicates the amount of energy retained after two objects collide. A COR of 1 signifies a perfectly elastic collision with no energy loss, while a COR of 0 indicates a completely inelastic collision where all energy is lost.
+   - In this pool game simulation, the COR is used to calculate the impulse during a collision, which is the change in momentum. This impulse is applied to both balls involved in the collision to adjust their velocities. For pool balls, the COR is approximately 0.96, reflecting the slight energy loss typical in real-world pool games.
+
+5. **Pocket Detection:**
    - Balls are checked for proximity to pockets. If a ball is close enough, it is considered pocketed and removed from play.
    - The cue ball is repositioned if pocketed, simulating a scratch.
 
-4. **Cue Stick Mechanics:**
+6. **Cue Stick Mechanics:**
    - The cue stick's angle and power are adjustable, affecting the direction and speed of the cue ball.
    - The shot power determines the velocity imparted to the cue ball, with a maximum speed limit to ensure realistic gameplay.
 
-5. **Table Dimensions:**
+7. **Table Dimensions:**
    - Length: 9ft (900px)
    - Width: 4.5ft (450px)
    - Scale: 1ft = 100px
@@ -210,7 +221,7 @@ pylint src/*.py
 ```
 pool/
 ├── src/
-│   ├── poolgame.py    # Main controller
+│   ├─ poolgame.py    # Main controller
 │   ├── ball.py        # Ball physics
 │   ├── cuestick.py    # Cue mechanics
 │   ├── table.py       # Table handling
