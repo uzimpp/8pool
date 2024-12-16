@@ -16,7 +16,7 @@ Read me: 5 hrs
             # We can consider each particle separately
             # and set the impulse on the particle equal to the change of linear momentum"""
             
-Pylint is not fully comply due to code performance and readability
+Pylint is fully comply
 
 # Standard pool ball colors and numbering:
 # solids: 1(yellow),2(blue),3(red),4(purple),5(orange),6(green),7(brown/maroon),8(black)
@@ -25,4 +25,3 @@ Pylint is not fully comply due to code performance and readability
 # cue: white
 
 
-pylint
