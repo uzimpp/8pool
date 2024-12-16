@@ -1,11 +1,11 @@
 # Pool Game Simulator
 ![8 Pool Game](https://github.com/uzimpp/final_project_y1-1/blob/main/8%20pool%20game.png)
 ---
-## Project Description
+## Project Description 
 The **Pool Game Simulator** combines physics simulation with interactive gameplay. Players use a cue stick to strike balls, considering angles, power, and ball interactions. The game features realistic physics including inelastic collisions, friction, and momentum conservation.
 
-### Project Sophistication Level
-- **Rating :** `100/100`
+### Project Sophistication Level ⭐
+- **Rating :** `100/100` 
 
 ### Features:
   - Realistic collision dynamics using coefficient of restitution
@@ -73,7 +73,7 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
    - Game state updates based on remaining balls
 
 ---
-## Technical Highlights
+## Technical Highlights  ⭐
 
 -**Physics Simulation :**
 - Inelastic collision calculations
@@ -230,6 +230,7 @@ classDiagram
         # _display_win_message()
         + find_ball()
         + draw_guide_line()
+        - __init__()
     }
 
     class Ball {
@@ -251,6 +252,8 @@ classDiagram
         + bounce_off()
         + move()
         + is_moving()
+        - __init__()
+        - __str__()
     }
 
     class CueBall {
@@ -261,6 +264,7 @@ classDiagram
         # _stripe_color: tuple
         + draw()
         # _draw_stripe()
+        - __init__()
     }
 
     class CueStick {
@@ -277,6 +281,8 @@ classDiagram
         + shoot()
         + update_position()
         + reset()
+        - __init__()
+        - __str__()
     }
 
     class Table {
@@ -287,6 +293,7 @@ classDiagram
         # draw_rectangle()
         # draw_pockets()
         + check_pockets()
+        - __init__()
     }
 
     class PhysicsEngine {
@@ -297,6 +304,7 @@ classDiagram
         # _handle_cue_ball_pocketed()
         + check_table_edge_collisions()
         + check_ball_collisions()
+        - __init__()
     }
 
     class Handler {
@@ -305,13 +313,14 @@ classDiagram
         + calculate_rail_intersection()
         # _check_rail()
         + calculate_ball_intersection()
+        - __init__()
     }
 
-    PoolGame --> Ball : 1 - 15 + 1(cueball)
-    PoolGame --> CueStick : 1 - 1
-    PoolGame --> Table : 1 - 1
-    PoolGame --> PhysicsEngine : 1 - 1
-    PoolGame --> Handler : 1 - 1
+    PoolGame *-- Ball : 1, 15 + 1(cueball)
+    PoolGame *-- CueStick : 1, 1
+    PoolGame *-- Table : 1, 1
+    PoolGame *-- PhysicsEngine : 1, 1
+    PoolGame *-- Handler : 1, 1
     Ball <|-- CueBall : Inherits
     Ball <|-- StripeBall : Inherits
 ```
