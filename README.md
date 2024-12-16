@@ -144,6 +144,9 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
    - Width: 4.5ft (450px)
    - Scale: 1ft = 100px
 
+More References:
+https://ocw.mit.edu/courses/16-07-dynamics-fall-2009/a867999737497c79fd8ffe97641c503f_MIT16_07F09_Lec09.pdf
+https://westpennbilliards.com/what-size-billiard-table-is-considered-regulation/#:~:text=The%20word%20regulation%20refers%20to,long%20and%2044%20inches%20wide.
 ---
 
 ## Project Architecture
