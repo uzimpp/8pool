@@ -49,9 +49,9 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 ## Controls
 - **A / D :** Rotate cue stick (counter-clockwise/clockwise)
 - **W / S :** Adjust shot power (increase/decrease)
-- ** Space :** Execute shot
-- ** Enter :** Restart after winning
-- ** Cancel :** Quit after winning
+- **Space :** Execute shot
+- **Enter :** Restart after winning
+- **Cancel :** Quit after winning
 
 *Provide a link to the demo video here.*
 
