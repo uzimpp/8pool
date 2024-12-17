@@ -206,14 +206,14 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
 classDiagram
 
     class PoolGame {
-        # _game_objects (dict): Contains game entities
+        # _game_objects : dict
             - 'table': Table instance [GET] [SET]
             - 'cuestick': CueStick instance [GET] [SET]
             - 'ball_list': List of Ball instances [GET] [SET]
-        # _game_state (dict): Tracks game status
+        # _game_state : dict
             - 'shot_made': Shot status flag [GET] [SET]
             - 'game_won': Game completion flag [GET] [SET]
-        # _display (dict): Manages display elements
+        # _display : dict
             - 'screen': Main turtle screen [GET] [SET]
             - 'turtles': Dictionary of turtle objects [GET] [SET]
         + set_newgame()
@@ -236,10 +236,10 @@ classDiagram
     }
 
     class Ball {
-        # _physics (dict): Contains position and velocity data
+        # _physics : dict
             - 'pos': [x, y] position coordinates [GET] [SET]
             - 'velocity': [vx, vy] velocity components [GET] [SET]
-        # _properties (dict): Contains ball characteristics
+        # _properties : dict
             - 'number': Ball number (1-15, None for cue ball) [GET]
             - 'color': RGB color tuple [GET]
         + turtle: Turtle
@@ -266,14 +266,14 @@ classDiagram
     }
 
     class CueStick {
-        # _state (dict): All cue stick state data
+        # _state : dict
             - cueball: Reference to cue ball [GET]
             - angle: Current aiming angle [GET] [SET]
             - offset: Distance from cue ball [GET] [SET]
             - power: Shot power (0-100) [GET] [SET]
             - shot_position: Last position after shooting [GET] [SET]
             - shot_angle: Angle of last shot [GET] [SET]
-        + turtle: Turtle object for drawing
+        + turtle: Turtle
         + draw()
         + rotate()
         + power()
