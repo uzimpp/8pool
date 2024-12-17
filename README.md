@@ -49,9 +49,9 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 ## Controls
 - **A / D :** Rotate cue stick (counter-clockwise/clockwise)
 - **W / S :** Adjust shot power (increase/decrease)
-- **Space :** Execute shot
-- **Enter :** Restart after winning
-- **Cancel :** Quit after winning
+- ** Space :** Execute shot
+- ** Enter :** Restart after winning
+- ** Cancel :** Quit after winning
 
 *Provide a link to the demo video here.*
 
@@ -144,9 +144,6 @@ BALL_RESTITUTION = 0.96   # Collision elasticity
    - Width: 4.5ft (450px)
    - Scale: 1ft = 100px
 
-More References:
-https://ocw.mit.edu/courses/16-07-dynamics-fall-2009/a867999737497c79fd8ffe97641c503f_MIT16_07F09_Lec09.pdf
-https://westpennbilliards.com/what-size-billiard-table-is-considered-regulation/#:~:text=The%20word%20regulation%20refers%20to,long%20and%2044%20inches%20wide.
 ---
 
 ## Project Architecture
@@ -209,14 +206,16 @@ https://westpennbilliards.com/what-size-billiard-table-is-considered-regulation/
 classDiagram
 
     class PoolGame {
-        # _state: dict
-        + screen: Screen
-        + turtles: dict
-        + table: Table
-        + ball_list: list
-        + cuestick: CueStick
-        + game_won: bool
-        + shot_made: bool
+        # _game_objects (dict): Contains game entities
+            - 'table': Table instance [GET] [SET]
+            - 'cuestick': CueStick instance [GET] [SET]
+            - 'ball_list': List of Ball instances [GET] [SET]
+        # _game_state (dict): Tracks game status
+            - 'shot_made': Shot status flag [GET] [SET]
+            - 'game_won': Game completion flag [GET] [SET]
+        # _display (dict): Manages display elements
+            - 'screen': Main turtle screen [GET] [SET]
+            - 'turtles': Dictionary of turtle objects [GET] [SET]
         + set_newgame()
         + input()
         + run()
@@ -237,17 +236,13 @@ classDiagram
     }
 
     class Ball {
-        # _physics: dict
-        # _properties: dict
+        # _physics (dict): Contains position and velocity data
+            - 'pos': [x, y] position coordinates [GET] [SET]
+            - 'velocity': [vx, vy] velocity components [GET] [SET]
+        # _properties (dict): Contains ball characteristics
+            - 'number': Ball number (1-15, None for cue ball) [GET]
+            - 'color': RGB color tuple [GET]
         + turtle: Turtle
-        + x: float
-        + y: float
-        + vx: float
-        + vy: float
-        + number: int
-        + color: tuple
-        + size: float
-        + mass: float
         + draw()
         + distance()
         + bounce_off_horizontal_rail()
@@ -271,13 +266,14 @@ classDiagram
     }
 
     class CueStick {
-        # _state: dict
-        + turtle: Turtle
-        + pow: float
-        + angle: float
-        + offset: float
-        + shot_position: tuple
-        + shot_angle: float
+        # _state (dict): All cue stick state data
+            - cueball: Reference to cue ball [GET]
+            - angle: Current aiming angle [GET] [SET]
+            - offset: Distance from cue ball [GET] [SET]
+            - power: Shot power (0-100) [GET] [SET]
+            - shot_position: Last position after shooting [GET] [SET]
+            - shot_angle: Angle of last shot [GET] [SET]
+        + turtle: Turtle object for drawing
         + draw()
         + rotate()
         + power()
@@ -290,8 +286,8 @@ classDiagram
 
     class Table {
         + turtle: Turtle
-        # _pockets: list
-        + pocketed: list
+        + pockets: List
+        + pocketed: List
         + draw_table()
         # draw_rectangle()
         # draw_pockets()
@@ -319,11 +315,11 @@ classDiagram
         - __init__()
     }
 
-    PoolGame *-- Ball : 1, 15 + 1(cueball)
-    PoolGame *-- CueStick : 1, 1
-    PoolGame *-- Table : 1, 1
-    PoolGame *-- PhysicsEngine : 1, 1
-    PoolGame *-- Handler : 1, 1
+    PoolGame <>-- Ball : 1 - 15 + 1(cueball)
+    PoolGame <>-- CueStick : 1 - 1
+    PoolGame <>-- Table : 1 - 1
+    PoolGame <>-- PhysicsEngine : 1 - 1
+    PoolGame <>-- Handler : 1 - 1
     Ball <|-- CueBall : Inherits
     Ball <|-- StripeBall : Inherits
 ```
@@ -337,15 +333,6 @@ pylint src/*.py
 ```
 
 ### Further Improvements
+- Add some sound to a collision
+- Add more UI:
 ---
-
-## Contributing
-1. Fork repository
-2. Create feature branch
-3. Commit changes
-4. Open pull request
-
----
-
-## License
-MIT License - See LICENSE file for details
