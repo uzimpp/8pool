@@ -315,11 +315,11 @@ classDiagram
         - __init__()
     }
 
-    PoolGame <>-- Ball : 1 - 15 + 1(cueball)
-    PoolGame <>-- CueStick : 1 - 1
-    PoolGame <>-- Table : 1 - 1
-    PoolGame <>-- PhysicsEngine : 1 - 1
-    PoolGame <>-- Handler : 1 - 1
+    PoolGame *-- Ball : 1, 15 + 1(cueball)
+    PoolGame *-- CueStick : 1, 1
+    PoolGame *-- Table : 1, 1
+    PoolGame *-- PhysicsEngine : 1, 1
+    PoolGame *-- Handler : 1, 1
     Ball <|-- CueBall : Inherits
     Ball <|-- StripeBall : Inherits
 ```
