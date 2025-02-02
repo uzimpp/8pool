@@ -53,8 +53,6 @@ The **Pool Game Simulator** combines physics simulation with interactive gamepla
 - **Enter :** Restart after winning
 - **Cancel :** Quit after winning
 
-*Provide a link to the demo video here.*
-
 ---
 ## Key Interactions
 1. **Shot Execution :**
